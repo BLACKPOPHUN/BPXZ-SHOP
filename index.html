@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPXZ SHOP - API Edition</title>
+    <title>BPXZ SHOP - API Planaria</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #ff4d4d; --bg: #0a0a0a; --card: #151515; --text: #fff; --success: #2ecc71; }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Kanit',sans-serif; }
         body { background: var(--bg); color: var(--text); }
-        nav { background:#000; padding:15px 5%; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); sticky: top; z-index: 1000; }
-        .container { max-width:1000px; margin:30px auto; padding:0 15px; }
+        nav { background:#000; padding:15px 5%; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
+        .container { max-width:1100px; margin:30px auto; padding:0 15px; }
         .section { display:none; background:var(--card); padding:30px; border-radius:15px; border:1px solid #222; }
-        .active { display:block; animation: fadeIn 0.4s; }
+        .active { display:block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .btn-main { background:var(--primary); color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; transition:0.3s; }
         .btn-main:disabled { background:#444; cursor: not-allowed; }
         input { background:#222; border:1px solid #333; color:white; padding:12px; border-radius:8px; width:100%; margin-bottom:15px; outline: none; }
-        .product-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:20px; }
-        .product-card { background:var(--card); border:1px solid #222; border-radius:12px; padding:15px; text-align:center; transition: 0.3s; }
-        .product-card:hover { border-color: var(--primary); }
+        .product-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:20px; }
+        .product-card { background:var(--card); border:1px solid #222; border-radius:15px; padding:20px; text-align:center; transition: 0.3s; }
+        .product-card:hover { border-color: var(--primary); transform: translateY(-5px); }
         .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:2000; }
-        .modal-content { background:var(--card); padding:30px; border-radius:15px; width:90%; max-width:400px; border:1px solid var(--primary); text-align: center; }
+        .modal-content { background:var(--card); padding:30px; border-radius:20px; width:95%; max-width:400px; border:1px solid var(--primary); text-align: center; }
     </style>
 </head>
 <body>
@@ -29,7 +29,7 @@
     <nav>
         <h1 style="color:var(--primary); cursor:pointer;" onclick="location.reload()">BPXZ SHOP</h1>
         <div id="navUser" style="display:none;">
-            <button onclick="logout()" style="background:none; color:white; border:none; cursor:pointer;">ออกจากระบบ</button>
+            <button onclick="logout()" style="background:none; color:white; border:none; cursor:pointer;">LOGOUT</button>
         </div>
     </nav>
 
@@ -37,34 +37,34 @@
         <section id="login" class="section active">
             <h2 style="text-align:center; margin-bottom:20px;">เข้าสู่ระบบ</h2>
             <form onsubmit="handleLogin(event)">
-                <input type="text" id="loginId" placeholder="อีเมล / ID แอดมิน" required>
+                <input type="text" id="loginId" placeholder="อีเมล / แอดมิน ID" required>
                 <input type="password" id="loginPass" placeholder="รหัสผ่าน" required>
                 <button type="submit" class="btn-main">LOGIN</button>
             </form>
         </section>
 
         <section id="shop" class="section">
-            <h2 style="margin-bottom:20px;">เลือกสินค้าที่คุณต้องการ</h2>
+            <h2 style="margin-bottom:25px;">เลือกซื้อสินค้า</h2>
             <div id="productGrid" class="product-grid"></div>
         </section>
     </div>
 
     <div id="buyModal" class="modal">
         <div class="modal-content">
-            <h3 id="buyItemName" style="margin-bottom: 5px;"></h3>
-            <p>ยอดที่ต้องชำระ: <span id="buyItemPrice" style="color:var(--primary); font-size:1.8rem; font-weight: bold;"></span> ฿</p>
+            <h3 id="buyItemName"></h3>
+            <p>ราคา: <span id="buyItemPrice" style="color:var(--primary); font-size:1.8rem; font-weight:bold;"></span> ฿</p>
             <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
             <input type="text" id="walletLink" placeholder="วางลิงก์ซองของขวัญที่นี่...">
-            <button class="btn-main" id="payBtn" onclick="processPayment()">ยืนยันการชำระเงิน</button>
+            <button class="btn-main" id="payBtn" onclick="processPayment()">ตรวจสอบยอดเงิน</button>
             
             <div id="statusMsg" style="margin-top: 15px; font-size: 0.9rem;"></div>
 
             <div id="downloadBox" style="display:none; margin-top:20px; border: 2px dashed var(--success); padding: 15px; border-radius: 10px;">
-                <p style="color:var(--success); font-weight: bold; margin-bottom: 10px;">ชำระเงินสำเร็จแล้ว!</p>
-                <a id="dlLink" href="#" target="_blank" style="color:#fff; text-decoration: underline;">คลิกเพื่อดาวน์โหลดสินค้าของคุณ</a>
+                <p style="color:var(--success); font-weight: bold; margin-bottom: 10px;">ชำระเงินสำเร็จ!</p>
+                <a id="dlLink" href="#" target="_blank" style="color:#fff; text-decoration: underline;">คลิกที่นี่เพื่อดาวน์โหลดสินค้า</a>
             </div>
             
-            <button onclick="closeModal()" id="closeBtn" style="margin-top:20px; color:#777; background:none; border:none; cursor:pointer;">[ ยกเลิก ]</button>
+            <button onclick="closeModal()" style="margin-top:20px; color:#666; background:none; border:none; cursor:pointer;">[ ยกเลิก ]</button>
         </div>
     </div>
 
@@ -73,7 +73,7 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // CONFIG: Firebase
+        // Firebase Config (คงเดิมไว้)
         const firebaseConfig = {
             apiKey: "AIzaSyCkKUrj5pHqXUvHMI-JpGWqMwlitGe7b0c",
             authDomain: "bpxzshop-2573c.firebaseapp.com",
@@ -83,11 +83,11 @@
             appId: "1:51423151593:web:79c4e1c86fcf6340cff778"
         };
 
-        // CONFIG: Planaria API (ข้อมูลที่คุณให้มา)
-        const PLANARIA_API = {
-            endpoint: "https://www.planariashop.com/api/truewallet.php",
+        // API Config (ตามที่คุณแจ้ง)
+        const API_DATA = {
+            url: "https://www.planariashop.com/api/truewallet.php",
             key: "33c60ebefce44b2660a326ed7335d8de",
-            phone: "0950189983" // *** ใส่เบอร์ Wallet ของคุณที่ต้องการรับเงิน ***
+            phone: "0XXXXXXXXX" // *** เปลี่ยนเป็นเบอร์ Wallet ของคุณที่นี่ ***
         };
 
         const app = initializeApp(firebaseConfig);
@@ -100,7 +100,7 @@
             document.getElementById(id).classList.add('active');
         };
 
-        // --- ระบบ Authentication ---
+        // ระบบ Login
         window.handleLogin = async (e) => {
             e.preventDefault();
             const id = loginId.value.trim();
@@ -108,7 +108,7 @@
             if (id === "bpxzshop" && pass === "bpxz7952") {
                 localStorage.setItem('isAdmin', 'true'); location.reload(); return;
             }
-            try { await signInWithEmailAndPassword(auth, id, pass); } catch (err) { alert("ชื่อผู้ใช้หรือรหัสผ่านผิด"); }
+            try { await signInWithEmailAndPassword(auth, id, pass); } catch (err) { alert("ข้อมูลไม่ถูกต้อง"); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -118,81 +118,77 @@
             }
         });
 
-        // --- ดึงข้อมูลสินค้าจาก Firestore ---
+        // ดึงสินค้า
         onSnapshot(collection(db, "products"), (snap) => {
             document.getElementById('productGrid').innerHTML = snap.docs.map(d => {
                 const p = d.data();
                 return `
                 <div class="product-card">
-                    <img src="${p.img}" style="width:100%; height:140px; object-fit:cover; border-radius:10px;">
-                    <h3 style="margin:12px 0 5px 0;">${p.name}</h3>
-                    <p style="color:var(--primary); font-size:1.3rem; font-weight:bold; margin-bottom:12px;">${p.price} ฿</p>
-                    <button class="btn-main" onclick="openBuyModal('${p.name}', ${p.price}, '${p.downloadLink}')">ซื้อตอนนี้</button>
+                    <img src="${p.img}" style="width:100%; height:150px; object-fit:cover; border-radius:10px;">
+                    <h3 style="margin:15px 0 5px 0;">${p.name}</h3>
+                    <p style="color:var(--primary); font-size:1.4rem; font-weight:bold; margin-bottom:15px;">${p.price} ฿</p>
+                    <button class="btn-main" onclick="openBuyModal('${p.name}', ${p.price}, '${p.downloadLink}')">ซื้อสินค้า</button>
                 </div>`;
             }).join('');
         });
 
-        // --- ระบบชำระเงินผ่าน API ตัวกลาง ---
+        // ระบบจ่ายเงินผ่าน API
         window.openBuyModal = (name, price, link) => {
             currentItem = { name, price, link };
             buyItemName.innerText = name;
             buyItemPrice.innerText = price;
-            statusMsg.innerHTML = "";
+            statusMsg.innerText = "";
             downloadBox.style.display = 'none';
             walletLink.value = "";
             payBtn.disabled = false;
-            payBtn.innerText = "ยืนยันการชำระเงิน";
+            payBtn.innerText = "ตรวจสอบยอดเงิน";
             buyModal.style.display = 'flex';
         };
 
         window.processPayment = async () => {
-            const giftLink = walletLink.value.trim();
-            if(!giftLink) return alert("กรุณาวางลิงก์ซองของขวัญ");
+            const link = walletLink.value.trim();
+            if(!link) return alert("กรุณาใส่ลิงก์ซองของขวัญ");
 
             payBtn.disabled = true;
-            payBtn.innerText = "กำลังตรวจสอบยอดเงิน...";
-            statusMsg.innerHTML = "ระบบกำลังสื่อสารกับ TrueWallet API...";
+            payBtn.innerText = "กำลังสื่อสารกับ API...";
+            statusMsg.innerText = "กรุณารอสักครู่ ระบบกำลังเช็คยอดเงิน...";
 
             try {
-                // สร้างข้อมูลสำหรับส่งไปที่ API
-                const formData = new URLSearchParams();
-                formData.append('keyapi', PLANARIA_API.key);
-                formData.append('phone', PLANARIA_API.phone);
-                formData.append('gift_link', giftLink);
+                // ส่งข้อมูลไปที่ API Planaria (ใช้ URLSearchParams สำหรับส่งแบบ x-www-form-urlencoded)
+                const body = new URLSearchParams();
+                body.append('keyapi', API_DATA.key);
+                body.append('phone', API_DATA.phone);
+                body.append('gift_link', link);
 
-                // เรียกใช้ API (ใช้ Proxy 'cors-anywhere' หรือคล้ายกันหากติดปัญหา CORS จากเบราว์เซอร์)
-                const response = await fetch(PLANARIA_API.endpoint, {
+                const response = await fetch(API_DATA.url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData
+                    body: body
                 });
 
-                const result = await response.json();
+                const res = await response.json();
 
-                // ตรวจสอบเงื่อนไขความสำเร็จของ API (สมมติว่าสำเร็จถ้า status == 'success')
-                // *หมายเหตุ: คุณต้องเช็คกับเจ้าของ API ว่าเขาส่งค่ากลับมาเป็นรูปแบบไหน*
-                if (result.status === "success" || result.code === "200") {
-                    const receivedAmount = parseFloat(result.amount);
-                    
-                    if (receivedAmount >= currentItem.price) {
-                        statusMsg.innerHTML = `<span style="color:var(--success)">รับเงินสำเร็จ: ${receivedAmount} บาท</span>`;
+                // ตรวจสอบเงื่อนไขการตอบกลับ (ปรับตามรูปแบบที่ API ส่งมา)
+                if (res.status === "success" || res.code === "200") {
+                    const amount = parseFloat(res.amount);
+                    if (amount >= currentItem.price) {
+                        statusMsg.innerHTML = `<span style="color:var(--success)">รับเงินสำเร็จ: ${amount} บาท</span>`;
                         dlLink.href = currentItem.link;
                         downloadBox.style.display = 'block';
                         payBtn.innerText = "ชำระสำเร็จ";
                     } else {
-                        statusMsg.innerHTML = `<span style="color:orange">ยอดเงินในซองไม่พอ (ได้รับ ${receivedAmount} ฿)</span>`;
+                        statusMsg.innerHTML = `<span style="color:orange">ยอดเงินไม่พอ (ต้องการ ${currentItem.price} แต่พบ ${amount})</span>`;
                         payBtn.disabled = false;
                         payBtn.innerText = "ลองใหม่";
                     }
                 } else {
-                    statusMsg.innerHTML = `<span style="color:red">ข้อผิดพลาด: ${result.message || "ซองไม่ถูกต้อง"}</span>`;
+                    statusMsg.innerHTML = `<span style="color:red">ข้อผิดพลาด: ${res.message || "ซองไม่ถูกต้อง"}</span>`;
                     payBtn.disabled = false;
                     payBtn.innerText = "ตรวจสอบอีกครั้ง";
                 }
             } catch (err) {
-                statusMsg.innerHTML = `<span style="color:red">API ขัดข้อง: ไม่สามารถเชื่อมต่อระบบได้</span>`;
+                statusMsg.innerHTML = `<span style="color:red">API ขัดข้อง (CORS) หรือเซิร์ฟเวอร์ปลายทางปิด</span>`;
                 payBtn.disabled = false;
-                payBtn.innerText = "ลองใหม่อีกครั้ง";
+                payBtn.innerText = "ชำระเงิน";
             }
         };
 
