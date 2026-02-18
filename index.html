@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPXZ SHOP - Full System</title>
+    <title>BPXZ SHOP - English Name Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #ff4d4d; --bg: #0a0a0a; --card: #151515; --text: #fff; --success: #2ecc71; }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Kanit',sans-serif; }
         body { background: var(--bg); color: var(--text); }
-        nav { background:#000; padding:15px 5%; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); sticky: top; z-index: 1000; }
+        nav { background:#000; padding:15px 5%; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); position: sticky; top:0; z-index:1000; }
         .container { max-width:1000px; margin:30px auto; padding:0 15px; }
         .section { display:none; background:var(--card); padding:30px; border-radius:15px; border:1px solid #222; }
-        .active { display:block; }
+        .active { display:block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .btn-main { background:var(--primary); color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; margin-bottom:10px; }
         input { background:#222; border:1px solid #333; color:white; padding:12px; border-radius:8px; width:100%; margin-bottom:15px; outline: none; }
         .product-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:20px; }
-        .admin-item { background: #222; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); }
+        .admin-item { background: #1a1a1a; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -24,54 +25,56 @@
     <nav>
         <h1 onclick="location.reload()" style="cursor:pointer; color:var(--primary);">BPXZ SHOP</h1>
         <div id="navMenu">
-            <button onclick="showSection('login')" style="color:white; background:none; border:none; cursor:pointer;">ล็อกอิน</button>
-            <button onclick="showSection('register')" style="color:var(--primary); background:none; border:1px solid var(--primary); padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:10px;">สมัคร</button>
+            <button onclick="showSection('login')" style="color:white; background:none; border:none; cursor:pointer;">Login</button>
+            <button onclick="showSection('register')" style="color:var(--primary); background:none; border:1px solid var(--primary); padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:10px;">Sign Up</button>
         </div>
         <div id="userMenu" style="display:none;">
-            <span id="userDisp" style="font-size:0.8rem; margin-right:10px;"></span>
-            <button id="admBtn" onclick="showSection('admin')" style="display:none; color:yellow; background:none; border:none; cursor:pointer;">[จัดการ]</button>
-            <button onclick="logout()" style="color:white; background:none; border:none; cursor:pointer; margin-left:10px;">ออก</button>
+            <span id="userDisp" style="font-size:0.8rem; color: #aaa;"></span>
+            <button id="admBtn" onclick="showSection('admin')" style="display:none; color:yellow; background:none; border:none; cursor:pointer; margin-left:10px;">[Admin]</button>
+            <button onclick="logout()" style="color:white; background:none; border:none; cursor:pointer; margin-left:10px;">Logout</button>
         </div>
     </nav>
 
     <div class="container">
         <section id="register" class="section">
-            <h2>สมัครสมาชิก</h2>
-            <p style="font-size:0.8rem; color:gray; margin-bottom:15px;">*ต้องยืนยันอีเมลก่อนเข้าใช้งาน</p>
-            <input type="email" id="regEmail" placeholder="อีเมล">
-            <input type="password" id="regPass" placeholder="รหัสผ่าน">
-            <button class="btn-main" onclick="handleRegister()">สมัครสมาชิก</button>
+            <h2 style="text-align:center; margin-bottom:20px;">Create Account</h2>
+            <input type="text" id="regName" placeholder="First Name (English Only)" required>
+            <input type="email" id="regEmail" placeholder="Email Address" required>
+            <input type="password" id="regPass" placeholder="Password (Min 6 chars)" required>
+            <button class="btn-main" onclick="handleRegister()">Register</button>
+            <p style="text-align:center; font-size:0.8rem; color:gray; cursor:pointer;" onclick="showSection('login')">Already have an account? Login</p>
         </section>
 
         <section id="login" class="section active">
-            <h2>เข้าสู่ระบบ</h2>
-            <input type="text" id="loginEmail" placeholder="อีเมล">
-            <input type="password" id="loginPass" placeholder="รหัสผ่าน">
-            <button class="btn-main" onclick="handleLogin()">เข้าสู่ระบบ</button>
+            <h2 style="text-align:center; margin-bottom:20px;">Login</h2>
+            <input type="text" id="loginEmail" placeholder="Email / Admin ID">
+            <input type="password" id="loginPass" placeholder="Password">
+            <button class="btn-main" onclick="handleLogin()">Login</button>
         </section>
 
         <section id="admin" class="section">
-            <h2>จัดการสินค้า (เพิ่ม/แก้ไข)</h2>
-            <div id="editForm" style="background:#111; padding:20px; border-radius:10px; margin-bottom:20px;">
+            <h2 id="formTitle">Manage Products</h2>
+            <div style="background:#111; padding:20px; border-radius:10px; margin-bottom:20px; border: 1px solid #333;">
                 <input type="hidden" id="editId">
-                <input type="text" id="pName" placeholder="ชื่อสินค้า">
-                <input type="number" id="pPrice" placeholder="ราคา">
-                <input type="text" id="pImg" placeholder="ลิงก์รูป">
-                <input type="text" id="pLink" placeholder="ลิงก์ดาวน์โหลด">
-                <button class="btn-main" id="saveBtn" onclick="saveProduct()">เพิ่มสินค้าใหม่</button>
-                <button id="cancelEdit" onclick="resetForm()" style="display:none; background:none; color:gray; border:none; cursor:pointer;">ยกเลิกการแก้ไข</button>
+                <input type="text" id="pName" placeholder="Product Name">
+                <input type="number" id="pPrice" placeholder="Price (THB)">
+                <input type="text" id="pImg" placeholder="Image URL">
+                <input type="text" id="pLink" placeholder="Download Link">
+                <button class="btn-main" id="saveBtn" onclick="saveProduct()">Save Product</button>
+                <button id="cancelEdit" onclick="resetForm()" style="display:none; background:none; color:gray; border:none; cursor:pointer; width:100%;">Cancel Edit</button>
             </div>
             <div id="adminList"></div>
         </section>
 
         <section id="shop" class="section">
+            <h2 style="margin-bottom:20px;">Shop Items</h2>
             <div id="productGrid" class="product-grid"></div>
         </section>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -83,12 +86,6 @@
             appId: "1:51423151593:web:79c4e1c86fcf6340cff778"
         };
 
-        const API_CONF = {
-            url: "https://www.planariashop.com/api/truewallet.php",
-            key: "33c60ebefce44b2660a326ed7335d8de",
-            phone: "0950189983" // เปลี่ยนเบอร์ที่นี่
-        };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -98,98 +95,96 @@
             document.getElementById(id).classList.add('active');
         };
 
-        // --- ระบบสมาชิก + ยืนยันอีเมล ---
+        // --- Register (First Name English Only) ---
         window.handleRegister = async () => {
+            const name = regName.value.trim();
+            const email = regEmail.value.trim();
+            const pass = regPass.value.trim();
+
+            // เช็คว่าเป็นภาษาอังกฤษและไม่มีเว้นวรรค (ชื่อเดียว)
+            if(!/^[A-Za-z]+$/.test(name)) return alert("Please enter First Name in English only (No spaces/numbers).");
+
             try {
-                const userCred = await createUserWithEmailAndPassword(auth, regEmail.value, regPass.value);
+                const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(userCred.user, { displayName: name });
                 await sendEmailVerification(userCred.user);
-                alert("สมัครสำเร็จ! กรุณาเช็คอีเมลเพื่อกดยืนยันตัวตนก่อนเข้าสู่ระบบ");
+                alert("Success! Verification email sent.");
                 showSection('login');
             } catch (e) { alert(e.message); }
         };
 
         window.handleLogin = async () => {
-            const email = loginEmail.value;
-            const pass = loginPass.value;
+            const email = loginEmail.value.trim();
+            const pass = loginPass.value.trim();
             if(email === "bpxzshop" && pass === "bpxz7952") {
                 localStorage.setItem('isAdmin', 'true'); location.reload(); return;
             }
             try {
                 const userCred = await signInWithEmailAndPassword(auth, email, pass);
                 if (!userCred.user.emailVerified) {
-                    alert("กรุณายืนยันอีเมลของคุณก่อน!");
+                    alert("Verify your email first!");
                     await signOut(auth);
                 }
-            } catch (e) { alert("ล็อกอินไม่สำเร็จ"); }
+            } catch (e) { alert("Invalid credentials"); }
         };
 
         onAuthStateChanged(auth, (user) => {
-            const isAdmin = localStorage.getItem('isAdmin');
+            const isAdmin = localStorage.getItem('isAdmin') === 'true';
             if ((user && user.emailVerified) || isAdmin) {
                 document.getElementById('navMenu').style.display = 'none';
                 document.getElementById('userMenu').style.display = 'block';
-                document.getElementById('userDisp').innerText = isAdmin ? "Admin Mode" : user.email;
+                document.getElementById('userDisp').innerText = isAdmin ? "Administrator" : `Hi, ${user.displayName}`;
                 if(isAdmin) document.getElementById('admBtn').style.display = 'inline';
                 showSection('shop');
             }
         });
 
-        // --- ระบบจัดการสินค้า (เพิ่ม/แก้ไข/ลบ) ---
+        // --- Product Logic ---
         let allProducts = [];
         onSnapshot(collection(db, "products"), (snap) => {
             allProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            renderProducts();
-        });
-
-        function renderProducts() {
-            // หน้า Admin
             document.getElementById('adminList').innerHTML = allProducts.map(p => `
                 <div class="admin-item">
-                    <b>${p.name}</b> - ${p.price}฿
-                    <div style="margin-top:5px;">
-                        <button onclick="editProduct('${p.id}')" style="color:cyan; background:none; border:none; cursor:pointer;">[แก้ไข]</button>
-                        <button onclick="deleteProduct('${p.id}')" style="color:red; background:none; border:none; cursor:pointer; margin-left:10px;">[ลบ]</button>
+                    <span>${p.name} (${p.price}฿)</span>
+                    <div>
+                        <button onclick="editProduct('${p.id}')" style="color:cyan; background:none; border:none; cursor:pointer;">[Edit]</button>
+                        <button onclick="deleteProduct('${p.id}')" style="color:red; background:none; border:none; cursor:pointer; margin-left:10px;">[Del]</button>
                     </div>
                 </div>`).join('');
-            
-            // หน้าร้าน
             document.getElementById('productGrid').innerHTML = allProducts.map(p => `
-                <div style="background:#222; padding:15px; border-radius:10px; text-align:center;">
-                    <img src="${p.img}" style="width:100%; height:120px; object-fit:cover; border-radius:5px;">
-                    <h4 style="margin:10px 0;">${p.name}</h4>
-                    <button class="btn-main" onclick="alert('ระบบเติมเงิน API พร้อมใช้งาน')">${p.price} ฿ | ซื้อ</button>
+                <div style="background:#222; padding:15px; border-radius:12px; text-align:center; border: 1px solid #333;">
+                    <img src="${p.img}" style="width:100%; height:130px; object-fit:cover; border-radius:8px;">
+                    <h4 style="margin:12px 0 5px 0;">${p.name}</h4>
+                    <button class="btn-main" onclick="alert('API Ready')">${p.price} THB</button>
                 </div>`).join('');
-        }
+        });
 
         window.saveProduct = async () => {
             const data = { name: pName.value, price: Number(pPrice.value), img: pImg.value, downloadLink: pLink.value };
             const id = editId.value;
-            if (id) {
-                await updateDoc(doc(db, "products", id), data);
-                alert("แก้ไขสำเร็จ");
-            } else {
-                await addDoc(collection(db, "products"), data);
-                alert("เพิ่มสินค้าสำเร็จ");
-            }
+            if (id) await updateDoc(doc(db, "products", id), data);
+            else await addDoc(collection(db, "products"), data);
             resetForm();
+            alert("Done!");
         };
 
         window.editProduct = (id) => {
             const p = allProducts.find(x => x.id === id);
             editId.value = p.id; pName.value = p.name; pPrice.value = p.price; pImg.value = p.img; pLink.value = p.downloadLink;
-            saveBtn.innerText = "บันทึกการแก้ไข";
-            document.getElementById('cancelEdit').style.display = 'inline';
+            formTitle.innerText = "Edit: " + p.name;
+            saveBtn.innerText = "Update";
+            document.getElementById('cancelEdit').style.display = 'block';
             window.scrollTo(0,0);
         };
 
         window.resetForm = () => {
             editId.value=""; pName.value=""; pPrice.value=""; pImg.value=""; pLink.value="";
-            saveBtn.innerText = "เพิ่มสินค้าใหม่";
+            formTitle.innerText = "Manage Products";
+            saveBtn.innerText = "Save Product";
             document.getElementById('cancelEdit').style.display = 'none';
         };
 
-        window.deleteProduct = async (id) => { if(confirm("ลบสินค้านี้?")) await deleteDoc(doc(db, "products", id)); };
-
+        window.deleteProduct = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
         window.logout = () => { localStorage.clear(); signOut(auth).then(() => location.reload()); };
     </script>
 </body>
