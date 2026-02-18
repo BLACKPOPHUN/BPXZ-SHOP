@@ -398,7 +398,7 @@
         else showSection('login');
     };
 
-    // ── AUTH STATE — FIX: skip if admin session active ──
+    // ── AUTH STATE ──
     onAuthStateChanged(auth, async (user) => {
         // ✅ FIX: Don't override admin session UI
         if (localStorage.getItem('bpxz_admin_session')) return;
@@ -412,11 +412,15 @@
                     document.getElementById('navUser').style.display = 'flex';
                     document.getElementById('userNameDisp').innerText = `USER: ${currentUser.name.toUpperCase()}`;
                     document.getElementById('adminBtn').style.display = 'none';
-                    // ✅ FIX: Only redirect if on auth pages
+                    
+                    // ✅ FIX: Redirect to shop if currently on login/register or no section active
                     const active = document.querySelector('.section.active')?.id;
                     if (!active || active === 'login' || active === 'register') {
                         showSection('shop');
                     }
+                } else {
+                    // User exists in Auth but not in Firestore (shouldn't happen normally)
+                    console.warn("User data not found in Firestore");
                 }
             } catch (e) { console.error(e); }
         } else {
@@ -425,8 +429,7 @@
             document.getElementById('navUser').style.display = 'none';
             const active = document.querySelector('.section.active')?.id;
             if (active === 'shop' || active === 'admin') {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById('login').classList.add('active');
+                showSection('login');
             }
         }
     });
@@ -439,9 +442,12 @@
         document.getElementById('navUser').style.display = 'flex';
         document.getElementById('userNameDisp').innerText = 'ADMIN MASTER';
         document.getElementById('adminBtn').style.display = 'block';
-        // ✅ FIX: call showSection after DOM is ready (it already is, but using direct classList to avoid auth check)
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById('admin').classList.add('active');
+        
+        // ✅ FIX: Ensure admin section is shown
+        const active = document.querySelector('.section.active')?.id;
+        if (!active || active === 'login' || active === 'register') {
+            showSection('admin');
+        }
     }
 
     // ── LOGIN ──
@@ -461,6 +467,7 @@
         btn.disabled = true;
         try {
             await signInWithEmailAndPassword(auth, id, pass);
+            // onAuthStateChanged will handle the redirect
         } catch (err) {
             showToast('Email หรือ รหัสผ่านไม่ถูกต้อง', 'error');
             btn.innerHTML = 'เข้าสู่ระบบ';
@@ -484,13 +491,11 @@
         try {
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await setDoc(doc(db, "users", res.user.uid), { name, role: "user" });
-            showToast('สมัครสำเร็จ! กรุณาเข้าสู่ระบบ', 'success');
-            document.getElementById('registerForm').reset();
-            showSection('login');
+            showToast('สมัครสำเร็จ! กำลังเข้าสู่ระบบ...', 'success');
+            // onAuthStateChanged will handle the redirect
         } catch (err) {
             const msg = err.code === 'auth/email-already-in-use' ? 'Email นี้ถูกใช้แล้ว' : err.message;
             showToast(msg, 'error');
-        } finally {
             btn.innerHTML = 'สมัครสมาชิก';
             btn.disabled = false;
         }
@@ -520,22 +525,26 @@
             .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         const tbody = document.getElementById('orderTableBody');
-        tbody.innerHTML = orders.length === 0
-            ? '<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px;">ไม่มีออเดอร์ใน 7 วัน</td></tr>'
-            : orders.map(o => `
-                <tr>
-                    <td>${o.userName}</td>
-                    <td>${o.productName}</td>
-                    <td style="color:var(--red);font-family:'Rajdhani';font-weight:700;">฿${o.price}</td>
-                    <td><a href="${o.walletLink}" target="_blank" style="color:var(--green);font-size:0.8rem;">เปิดซอง ↗</a></td>
-                    <td style="font-size:0.78rem;color:var(--dim);">${new Date(o.timestamp).toLocaleString('th-TH')}</td>
-                </tr>`).join('');
+        if (tbody) {
+            tbody.innerHTML = orders.length === 0
+                ? '<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px;">ไม่มีออเดอร์ใน 7 วัน</td></tr>'
+                : orders.map(o => `
+                    <tr>
+                        <td>${o.userName}</td>
+                        <td>${o.productName}</td>
+                        <td style="color:var(--red);font-family:'Rajdhani';font-weight:700;">฿${o.price}</td>
+                        <td><a href="${o.walletLink}" target="_blank" style="color:var(--green);font-size:0.8rem;">เปิดซอง ↗</a></td>
+                        <td style="font-size:0.78rem;color:var(--dim);">${new Date(o.timestamp).toLocaleString('th-TH')}</td>
+                    </tr>`).join('');
+        }
     });
 
     // ── RENDER SHOP ──
     window.renderShop = () => {
         const grid = document.getElementById('productGrid');
         const countEl = document.getElementById('productCountText');
+        if (!grid) return;
+        
         if (products.length === 0) {
             grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><p style="color:var(--dim)">ยังไม่มีสินค้า</p></div>';
             if (countEl) countEl.innerText = '';
@@ -547,7 +556,7 @@
                 <div class="product-img-wrap">
                     <img src="${p.img}" class="product-img" alt="${p.name}" onerror="this.style.opacity=0.1">
                     <span class="stock-badge ${p.stock > 0 ? 'in-stock' : 'out-stock'}">
-                        ${p.stock > 0 ? `STOCK: ${p.stock}` : 'SOLD OUT'}
+                        ${p.stock > 0 ? `STOCK ${p.stock}` : 'SOLD OUT'}
                     </span>
                 </div>
                 <div class="product-body">
@@ -565,6 +574,8 @@
     // ── RENDER ADMIN TABLE ──
     window.renderAdminTable = () => {
         const tbody = document.getElementById('adminTableBody');
+        if (!tbody) return;
+        
         tbody.innerHTML = products.length === 0
             ? '<tr><td colspan="4" style="color:var(--dim);text-align:center;padding:20px;">ยังไม่มีสินค้า</td></tr>'
             : products.map(p => `
@@ -639,18 +650,25 @@
         document.getElementById('walletLink').value    = '';
         document.getElementById('phoneNumber').value   = '';
         const vr = document.getElementById('verifyResult');
-        vr.style.display = 'none'; vr.className = 'verify-result'; vr.innerHTML = '';
-        document.getElementById('downloadBox').style.display = 'none';
+        if (vr) {
+            vr.style.display = 'none'; vr.className = 'verify-result'; vr.innerHTML = '';
+        }
+        const dbx = document.getElementById('downloadBox');
+        if (dbx) dbx.style.display = 'none';
 
         const vBtn = document.getElementById('verifyBtn');
-        vBtn.style.display = 'block';
-        vBtn.disabled      = false;
-        vBtn.innerHTML     = '🔍 ตรวจสอบซองเงิน';
+        if (vBtn) {
+            vBtn.style.display = 'block';
+            vBtn.disabled      = false;
+            vBtn.innerHTML     = '🔍 ตรวจสอบซองเงิน';
+        }
 
         const pBtn = document.getElementById('payBtn');
-        pBtn.style.display = 'block';
-        pBtn.disabled      = true;
-        pBtn.innerHTML     = '✅ ชำระเงิน';
+        if (pBtn) {
+            pBtn.style.display = 'block';
+            pBtn.disabled      = true;
+            pBtn.innerHTML     = '✅ ชำระเงิน';
+        }
     }
 
     window.openBuyModal = (id) => {
@@ -676,6 +694,7 @@
     // ── VERIFY VOUCHER ──
     function setVerifyResult(type, html) {
         const box = document.getElementById('verifyResult');
+        if (!box) return;
         box.style.display = 'block';
         box.className = `verify-result ${type}`;
         box.innerHTML = html;
@@ -737,13 +756,12 @@
             setVerifyResult('error', '❌ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
             console.error(err);
         } finally {
-            // ✅ FIX: always reset verifyBtn regardless of outcome
             vBtn.innerHTML = '🔍 ตรวจสอบซองเงิน';
             vBtn.disabled  = false;
         }
     };
 
-    // ── PROCESS PAYMENT — FIX: Firestore transaction for atomic stock decrement ──
+    // ── PROCESS PAYMENT ──
     window.processPayment = async () => {
         const link = document.getElementById('walletLink').value.trim();
         const vBtn = document.getElementById('verifyBtn');
@@ -757,7 +775,6 @@
         try {
             const productRef = doc(db, "products", currentBuyingItem.id);
 
-            // ✅ FIX: Atomic transaction prevents race condition
             await runTransaction(db, async (tx) => {
                 const snap = await tx.get(productRef);
                 if (!snap.exists()) throw new Error("ไม่พบสินค้า");
@@ -778,7 +795,7 @@
             document.getElementById('downloadBox').style.display = 'block';
             document.getElementById('verifyResult').style.display = 'none';
             pBtn.style.display = 'none';
-            vBtn.style.display = 'none'; // ✅ FIX: hide verifyBtn on success
+            vBtn.style.display = 'none';
 
         } catch (err) {
             const msg = err.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
