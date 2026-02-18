@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPXZ SHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Kanit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #e63946;
+            --red-glow: rgba(230, 57, 70, 0.4);
+            --red-dim: rgba(230, 57, 70, 0.12);
+            --bg: #080808;
+            --bg2: #0e0e0e;
+            --card: #111111;
+            --card2: #161616;
+            --border: rgba(255,255,255,0.07);
+            --border-red: rgba(230,57,70,0.35);
+            --text: #f0f0f0;
+            --dim: #6a6a6a;
+            --dim2: #2e2e2e;
+            --green: #22c55e;
+            --green-dim: rgba(34,197,94,0.12);
+            --input-bg: #0c0c0c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Kanit', sans-serif; line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+        body.modal-open { overflow: hidden; }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: linear-gradient(rgba(230,57,70,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none; z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            background: rgba(8,8,8,0.97);
+            backdrop-filter: blur(20px);
+            padding: 0 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; height: 64px;
+            border-bottom: 1px solid var(--border-red);
+        }
+        nav::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent); opacity: 0.5;
+        }
+        .logo { font-family: 'Rajdhani', sans-serif; font-size: 1.75rem; font-weight: 700; letter-spacing: 3px; cursor: pointer; color: white; }
+        .logo span { color: var(--red); text-shadow: 0 0 20px var(--red-glow); }
+        .nav-links { display: flex; gap: 8px; align-items: center; }
+        .nav-user-info { font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; letter-spacing: 2px; color: var(--dim); border: 1px solid var(--dim2); padding: 4px 12px; border-radius: 3px; }
+        .nav-btn { background: none; border: 1px solid var(--dim2); color: var(--dim); cursor: pointer; padding: 7px 16px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 1.5px; transition: all 0.2s; }
+        .nav-btn:hover { border-color: #555; color: white; }
+        .nav-btn-red { background: var(--red); border-color: var(--red); color: white; box-shadow: 0 0 15px var(--red-glow); }
+        .nav-btn-red:hover { background: #ff4757; box-shadow: 0 0 25px var(--red-glow); border-color: #ff4757; }
+        .nav-btn-ghost { border-color: transparent; }
+        .nav-btn-ghost:hover { border-color: transparent; color: var(--red); }
+
+        /* LAYOUT */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; position: relative; z-index: 1; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeUp 0.35s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* AUTH */
+        .auth-wrap { max-width: 440px; margin: 3rem auto; }
+        .auth-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem; position: relative; overflow: hidden; }
+        .auth-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--red), transparent); }
+        .auth-label { font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; letter-spacing: 4px; color: var(--red); margin-bottom: 4px; font-weight: 600; }
+        .auth-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.72rem; letter-spacing: 1px; color: var(--dim); margin-bottom: 6px; font-family: 'Rajdhani', sans-serif; }
+        input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 13px 16px; border-radius: 6px; width: 100%; font-family: 'Kanit', sans-serif; font-size: 0.9rem; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+        input:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
+        input::placeholder { color: var(--dim2); }
+        .btn { display: block; width: 100%; padding: 13px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 2px; transition: all 0.2s; text-transform: uppercase; }
+        .btn-primary { background: var(--red); color: white; box-shadow: 0 4px 20px var(--red-glow); margin-top: 4px; }
+        .btn-primary:hover:not(:disabled) { background: #ff4757; box-shadow: 0 4px 30px rgba(230,57,70,0.6); transform: translateY(-1px); }
+        .btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover:not(:disabled) { border-color: #444; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .auth-switch { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--dim); }
+        .auth-switch a { color: var(--red); cursor: pointer; font-weight: 600; }
+        .auth-switch a:hover { text-decoration: underline; }
+
+        /* PAGE HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .page-label { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 4px; color: var(--red); margin-bottom: 4px; font-weight: 600; }
+        .page-title { font-size: 1.6rem; font-weight: 700; }
+        .product-count { font-size: 0.8rem; color: var(--dim); font-family: 'Rajdhani', sans-serif; }
+
+        /* PRODUCT GRID */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: all 0.3s; }
+        .product-card:hover { border-color: var(--border-red); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px var(--border-red); }
+        .product-img-wrap { position: relative; height: 200px; overflow: hidden; background: var(--bg2); }
+        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .product-card:hover .product-img { transform: scale(1.05); }
+        .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: 1px; }
+        .stock-badge.in-stock { color: var(--green); border-color: rgba(34,197,94,0.3); }
+        .stock-badge.out-stock { color: var(--red); border-color: var(--border-red); }
+        .product-body { padding: 18px; }
+        .product-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; line-height: 1.3; }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+        .product-price { font-family: 'Rajdhani', sans-serif; font-size: 1.65rem; font-weight: 700; color: var(--red); line-height: 1; }
+        .product-price span { font-size: 0.85rem; color: var(--dim); margin-left: 2px; }
+        .buy-btn { background: var(--red); color: white; border: none; padding: 9px 20px; border-radius: 5px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px; transition: all 0.2s; }
+        .buy-btn:hover:not(:disabled) { background: #ff4757; box-shadow: 0 4px 15px var(--red-glow); }
+        .buy-btn:disabled { background: var(--dim2); cursor: not-allowed; color: var(--dim); }
+
+        /* ADMIN */
+        .admin-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
+        @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
+        .admin-form-box { background: var(--card); border: 1px solid var(--border-red); border-radius: 10px; padding: 1.5rem; position: sticky; top: 80px; }
+        .admin-form-box h3 { font-size: 0.75rem; font-weight: 600; margin-bottom: 1.2rem; color: var(--red); font-family: 'Rajdhani', sans-serif; letter-spacing: 3px; text-transform: uppercase; }
+        .admin-form-box input { margin-bottom: 10px; }
+        .f-label { display: block; font-size: 0.68rem; letter-spacing: 1px; color: var(--dim); margin-bottom: 5px; margin-top: 2px; font-family: 'Rajdhani', sans-serif; }
+        .form-row { display: flex; gap: 8px; margin-top: 8px; }
+        .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .table-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+        .table-card-header h3 { font-size: 0.72rem; letter-spacing: 3px; color: var(--dim); font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase; }
+        .admin-table-wrap { overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { padding: 12px 16px; text-align: left; font-size: 0.68rem; letter-spacing: 2px; color: var(--dim); font-family: 'Rajdhani', sans-serif; border-bottom: 1px solid var(--border); text-transform: uppercase; }
+        .data-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255,255,255,0.018); }
+        .tbl-btn { background: none; border: 1px solid var(--dim2); color: var(--dim); padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; margin-right: 6px; transition: all 0.2s; font-family: 'Rajdhani', sans-serif; font-weight: 600; letter-spacing: 1px; }
+        .tbl-btn:hover { border-color: #555; color: white; }
+        .tbl-btn.del:hover { border-color: var(--red); color: var(--red); }
+        .section-divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; }
+        .modal.open { display: flex; animation: modalFade 0.2s ease; }
+        @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+        .modal-box { background: var(--card); border: 1px solid var(--border-red); border-radius: 14px; width: 100%; max-width: 430px; padding: 2rem; position: relative; animation: boxIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes boxIn { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        .modal-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--red), transparent); border-radius: 14px 14px 0 0; }
+        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: var(--dim); cursor: pointer; font-size: 1.1rem; padding: 4px 8px; transition: color 0.2s; }
+        .modal-close:hover { color: white; }
+        .modal-item-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .modal-price { font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700; color: var(--red); margin-bottom: 1.5rem; line-height: 1; }
+        .modal-price small { font-size: 1rem; color: var(--dim); margin-left: 2px; }
+        .m-label { display: block; font-size: 0.68rem; letter-spacing: 1.5px; color: var(--dim); font-family: 'Rajdhani', sans-serif; margin-bottom: 6px; }
+        .m-input { margin-bottom: 10px; }
+        .verify-result { display: none; padding: 12px 14px; border-radius: 8px; font-size: 0.88rem; margin: 12px 0; line-height: 1.5; }
+        .verify-result.success { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+        .verify-result.error { background: var(--red-dim); border: 1px solid var(--border-red); color: #ff7070; }
+        .modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+        .download-box { display: none; background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 16px; text-align: center; margin-top: 12px; }
+        .download-box p { color: var(--green); font-size: 0.95rem; margin-bottom: 10px; }
+        .download-box a { color: white; background: var(--green); padding: 10px 20px; border-radius: 6px; text-decoration: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: 1px; display: inline-block; transition: background 0.2s; }
+        .download-box a:hover { background: #16a34a; }
+
+        /* TOAST */
+        .toast { position: fixed; bottom: 28px; right: 28px; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; font-size: 0.88rem; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; max-width: 300px; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-color: rgba(34,197,94,0.4); }
+        .toast.error { border-color: var(--border-red); }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--dim); }
+        .empty-state-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
+
+        /* SPINNER */
+        .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.25); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--dim2); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo" onclick="goHome()">BPXZ<span>SHOP</span></div>
+    <div class="nav-links" id="navAuth">
+        <button class="nav-btn nav-btn-ghost" onclick="showSection('login')">LOGIN</button>
+        <button class="nav-btn nav-btn-red" onclick="showSection('register')">REGISTER</button>
+    </div>
+    <div class="nav-links" id="navUser" style="display:none;">
+        <span class="nav-user-info" id="userNameDisp"></span>
+        <button class="nav-btn nav-btn-ghost" onclick="showSection('shop')">🛒 ร้านค้า</button>
+        <button class="nav-btn nav-btn-red" id="adminBtn" style="display:none;" onclick="showSection('admin')">⚙️ แอดมิน</button>
+        <button class="nav-btn nav-btn-ghost" onclick="logout()">ออกจากระบบ</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- LOGIN -->
+    <section id="login" class="section active">
+        <div class="auth-wrap">
+            <div class="auth-box">
+                <p class="auth-label">BPXZ SHOP</p>
+                <h2 class="auth-title">เข้าสู่ระบบ</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">EMAIL / ADMIN ID</label>
+                        <input type="text" id="loginId" placeholder="email หรือ admin id" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PASSWORD</label>
+                        <input type="password" id="loginPass" placeholder="รหัสผ่าน" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">เข้าสู่ระบบ</button>
+                </form>
+                <p class="auth-switch">ยังไม่มีบัญชี? <a onclick="showSection('register')">สมัครสมาชิก</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- REGISTER -->
+    <section id="register" class="section">
+        <div class="auth-wrap">
+            <div class="auth-box">
+                <p class="auth-label">BPXZ SHOP</p>
+                <h2 class="auth-title">สมัครสมาชิก</h2>
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label class="form-label">USERNAME (อังกฤษ/ตัวเลข 6 ตัวขึ้นไป)</label>
+                        <input type="text" id="regName" placeholder="เช่น player99" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">EMAIL</label>
+                        <input type="email" id="regEmail" placeholder="your@email.com" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PASSWORD (6 ตัวขึ้นไป)</label>
+                        <input type="password" id="regPass" placeholder="รหัสผ่านอย่างน้อย 6 ตัว" required minlength="6" autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="regBtn">สมัครสมาชิก</button>
+                </form>
+                <p class="auth-switch">มีบัญชีแล้ว? <a onclick="showSection('login')">เข้าสู่ระบบ</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SHOP -->
+    <section id="shop" class="section">
+        <div class="page-header">
+            <div>
+                <p class="page-label">BPXZ SHOP</p>
+                <h2 class="page-title">สินค้าทั้งหมด</h2>
+            </div>
+            <span class="product-count" id="productCountText"></span>
+        </div>
+        <div id="productGrid" class="product-grid">
+            <div class="empty-state"><div class="empty-state-icon">⏳</div><p>กำลังโหลด...</p></div>
+        </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="admin" class="section">
+        <div class="page-header">
+            <div>
+                <p class="page-label">SYSTEM</p>
+                <h2 class="page-title">จัดการระบบ</h2>
+            </div>
+        </div>
+        <div class="admin-grid">
+            <div class="admin-form-box">
+                <h3 id="formTitle">เพิ่มสินค้าใหม่</h3>
+                <form id="productForm" onsubmit="handleProductSubmit(event)">
+                    <input type="hidden" id="editId">
+                    <label class="f-label">ชื่อสินค้า</label>
+                    <input type="text" id="pName" placeholder="ชื่อสินค้า" required>
+                    <label class="f-label">Link รูปภาพ</label>
+                    <input type="text" id="pImg" placeholder="https://..." required>
+                    <label class="f-label">ราคา (฿)</label>
+                    <input type="number" id="pPrice" placeholder="ราคา" required min="0">
+                    <label class="f-label">สต๊อก</label>
+                    <input type="number" id="pStock" placeholder="จำนวน" required min="0">
+                    <label class="f-label">Link ดาวน์โหลด</label>
+                    <input type="text" id="pLink" placeholder="https://..." required>
+                    <div class="form-row">
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="flex:1;">บันทึก</button>
+                        <button type="button" onclick="resetProductForm()" class="btn btn-secondary" style="flex:0 0 80px;">รีเซ็ต</button>
+                    </div>
+                </form>
+            </div>
+            <div>
+                <div class="table-card">
+                    <div class="table-card-header"><h3>รายการสินค้า</h3></div>
+                    <div class="admin-table-wrap">
+                        <table class="data-table">
+                            <thead><tr><th>ชื่อสินค้า</th><th>ราคา</th><th>สต๊อก</th><th>จัดการ</th></tr></thead>
+                            <tbody id="adminTableBody"><tr><td colspan="4" style="color:var(--dim);text-align:center;padding:20px;">กำลังโหลด...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr class="section-divider">
+                <div class="table-card">
+                    <div class="table-card-header"><h3>ออเดอร์ — 7 วันล่าสุด</h3></div>
+                    <div class="admin-table-wrap">
+                        <table class="data-table">
+                            <thead><tr><th>ผู้ซื้อ</th><th>สินค้า</th><th>ราคา</th><th>ซองอั่งเปา</th><th>เวลา</th></tr></thead>
+                            <tbody id="orderTableBody"><tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px;">ไม่มีออเดอร์</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- MODAL -->
+<div id="buyModal" class="modal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <p class="modal-item-name" id="buyItemName"></p>
+        <div class="modal-price" id="buyItemPrice"></div>
+        <label class="m-label">ลิงก์ซองอั่งเปา TRUEMONEY</label>
+        <input type="text" id="walletLink" placeholder="https://gift.truemoney.com/campaign/..." class="m-input">
+        <label class="m-label">เบอร์มือถือที่ผูก TRUEMONEY</label>
+        <input type="text" id="phoneNumber" placeholder="0812345678" class="m-input">
+        <div id="verifyResult" class="verify-result"></div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="verifyVoucher()" id="verifyBtn">🔍 ตรวจสอบซองเงิน</button>
+            <button class="btn btn-primary" onclick="processPayment()" id="payBtn" disabled>✅ ชำระเงิน</button>
+        </div>
+        <div id="downloadBox" class="download-box">
+            <p>🎉 ชำระเงินสำเร็จ!</p>
+            <a id="dlLink" href="#" target="_blank">⬇️ คลิกดาวน์โหลดสินค้า</a>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import {
+        getAuth, createUserWithEmailAndPassword,
+        signInWithEmailAndPassword, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import {
+        getFirestore, collection, addDoc, deleteDoc,
+        doc, setDoc, getDoc, updateDoc, onSnapshot,
+        query, where, getDocs, runTransaction
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCkKUrj5pHqXUvHMI-JpGWqMwlitGe7b0c",
+        authDomain: "bpxzshop-2573c.firebaseapp.com",
+        projectId: "bpxzshop-2573c",
+        storageBucket: "bpxzshop-2573c.firebasestorage.app",
+        messagingSenderId: "51423151593",
+        appId: "1:51423151593:web:79c4e1c86fcf6340cff778"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let products = [];
+    let currentBuyingItem = null;
+
+    // ── TOAST ──
+    function showToast(msg, type = 'info') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast ${type} show`;
+        clearTimeout(t._t);
+        t._t = setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // ── SECTION NAV ──
+    window.showSection = (id) => {
+        const isAdmin    = !!localStorage.getItem('bpxz_admin_session');
+        const isLoggedIn = isAdmin || !!auth.currentUser;
+
+        if (id === 'admin' && !isAdmin) {
+            showToast('ต้องมีสิทธิ์แอดมิน!', 'error');
+            return;
+        }
+        if (id === 'shop' && !isLoggedIn) {
+            showToast('กรุณาเข้าสู่ระบบก่อน', 'error');
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('login').classList.add('active');
+            return;
+        }
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.goHome = () => {
+        if (localStorage.getItem('bpxz_admin_session')) showSection('admin');
+        else if (auth.currentUser) showSection('shop');
+        else showSection('login');
+    };
+
+    // ── AUTH STATE — FIX: skip if admin session active ──
+    onAuthStateChanged(auth, async (user) => {
+        // ✅ FIX: Don't override admin session UI
+        if (localStorage.getItem('bpxz_admin_session')) return;
+
+        if (user) {
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) {
+                    currentUser = { uid: user.uid, ...snap.data() };
+                    document.getElementById('navAuth').style.display = 'none';
+                    document.getElementById('navUser').style.display = 'flex';
+                    document.getElementById('userNameDisp').innerText = `USER: ${currentUser.name.toUpperCase()}`;
+                    document.getElementById('adminBtn').style.display = 'none';
+                    // ✅ FIX: Only redirect if on auth pages
+                    const active = document.querySelector('.section.active')?.id;
+                    if (!active || active === 'login' || active === 'register') {
+                        showSection('shop');
+                    }
+                }
+            } catch (e) { console.error(e); }
+        } else {
+            currentUser = null;
+            document.getElementById('navAuth').style.display = 'flex';
+            document.getElementById('navUser').style.display = 'none';
+            const active = document.querySelector('.section.active')?.id;
+            if (active === 'shop' || active === 'admin') {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById('login').classList.add('active');
+            }
+        }
+    });
+
+    // ── ADMIN SESSION INIT ──
+    const _adminData = localStorage.getItem('bpxz_admin_session');
+    if (_adminData) {
+        currentUser = JSON.parse(_adminData);
+        document.getElementById('navAuth').style.display = 'none';
+        document.getElementById('navUser').style.display = 'flex';
+        document.getElementById('userNameDisp').innerText = 'ADMIN MASTER';
+        document.getElementById('adminBtn').style.display = 'block';
+        // ✅ FIX: call showSection after DOM is ready (it already is, but using direct classList to avoid auth check)
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('admin').classList.add('active');
+    }
+
+    // ── LOGIN ──
+    window.handleLogin = async (e) => {
+        e.preventDefault();
+        const id   = document.getElementById('loginId').value.trim();
+        const pass = document.getElementById('loginPass').value;
+        const btn  = document.getElementById('loginBtn');
+
+        if (id === "bpxzshop" && pass === "bpxz7952") {
+            localStorage.setItem('bpxz_admin_session', JSON.stringify({ name: "ADMIN MASTER", role: "admin" }));
+            location.reload();
+            return;
+        }
+
+        btn.innerHTML = '<span class="spinner"></span>กำลังเข้าสู่ระบบ...';
+        btn.disabled = true;
+        try {
+            await signInWithEmailAndPassword(auth, id, pass);
+        } catch (err) {
+            showToast('Email หรือ รหัสผ่านไม่ถูกต้อง', 'error');
+            btn.innerHTML = 'เข้าสู่ระบบ';
+            btn.disabled = false;
+        }
+    };
+
+    // ── REGISTER ──
+    window.handleRegister = async (e) => {
+        e.preventDefault();
+        const name  = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const pass  = document.getElementById('regPass').value;
+        const btn   = document.getElementById('regBtn');
+
+        if (!/^[a-zA-Z0-9]{6,}$/.test(name))
+            return showToast('ชื่อต้องเป็นอังกฤษ/ตัวเลข 6 ตัวขึ้นไป', 'error');
+
+        btn.innerHTML = '<span class="spinner"></span>กำลังสมัคร...';
+        btn.disabled = true;
+        try {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await setDoc(doc(db, "users", res.user.uid), { name, role: "user" });
+            showToast('สมัครสำเร็จ! กรุณาเข้าสู่ระบบ', 'success');
+            document.getElementById('registerForm').reset();
+            showSection('login');
+        } catch (err) {
+            const msg = err.code === 'auth/email-already-in-use' ? 'Email นี้ถูกใช้แล้ว' : err.message;
+            showToast(msg, 'error');
+        } finally {
+            btn.innerHTML = 'สมัครสมาชิก';
+            btn.disabled = false;
+        }
+    };
+
+    // ── LOGOUT ──
+    window.logout = async () => {
+        localStorage.removeItem('bpxz_admin_session');
+        await signOut(auth);
+        location.reload();
+    };
+
+    // ── REALTIME: PRODUCTS ──
+    onSnapshot(collection(db, "products"), (snap) => {
+        products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderShop();
+        renderAdminTable();
+    });
+
+    // ── REALTIME: ORDERS (admin only) ──
+    onSnapshot(collection(db, "orders"), (snap) => {
+        if (!localStorage.getItem('bpxz_admin_session')) return;
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
+        const orders = snap.docs
+            .map(d => ({ ...d.data() }))
+            .filter(o => (Date.now() - new Date(o.timestamp).getTime()) < oneWeek)
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        const tbody = document.getElementById('orderTableBody');
+        tbody.innerHTML = orders.length === 0
+            ? '<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px;">ไม่มีออเดอร์ใน 7 วัน</td></tr>'
+            : orders.map(o => `
+                <tr>
+                    <td>${o.userName}</td>
+                    <td>${o.productName}</td>
+                    <td style="color:var(--red);font-family:'Rajdhani';font-weight:700;">฿${o.price}</td>
+                    <td><a href="${o.walletLink}" target="_blank" style="color:var(--green);font-size:0.8rem;">เปิดซอง ↗</a></td>
+                    <td style="font-size:0.78rem;color:var(--dim);">${new Date(o.timestamp).toLocaleString('th-TH')}</td>
+                </tr>`).join('');
+    });
+
+    // ── RENDER SHOP ──
+    window.renderShop = () => {
+        const grid = document.getElementById('productGrid');
+        const countEl = document.getElementById('productCountText');
+        if (products.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><p style="color:var(--dim)">ยังไม่มีสินค้า</p></div>';
+            if (countEl) countEl.innerText = '';
+            return;
+        }
+        if (countEl) countEl.innerText = `${products.length} รายการ`;
+        grid.innerHTML = products.map(p => `
+            <div class="product-card">
+                <div class="product-img-wrap">
+                    <img src="${p.img}" class="product-img" alt="${p.name}" onerror="this.style.opacity=0.1">
+                    <span class="stock-badge ${p.stock > 0 ? 'in-stock' : 'out-stock'}">
+                        ${p.stock > 0 ? `STOCK ${p.stock}` : 'SOLD OUT'}
+                    </span>
+                </div>
+                <div class="product-body">
+                    <p class="product-name">${p.name}</p>
+                    <div class="product-footer">
+                        <div class="product-price">${Number(p.price).toLocaleString()}<span>฿</span></div>
+                        <button class="buy-btn" onclick="openBuyModal('${p.id}')" ${p.stock <= 0 ? 'disabled' : ''}>
+                            ${p.stock > 0 ? 'BUY NOW' : 'SOLD OUT'}
+                        </button>
+                    </div>
+                </div>
+            </div>`).join('');
+    };
+
+    // ── RENDER ADMIN TABLE ──
+    window.renderAdminTable = () => {
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = products.length === 0
+            ? '<tr><td colspan="4" style="color:var(--dim);text-align:center;padding:20px;">ยังไม่มีสินค้า</td></tr>'
+            : products.map(p => `
+                <tr>
+                    <td style="font-weight:600;">${p.name}</td>
+                    <td style="color:var(--red);font-family:'Rajdhani';font-weight:700;">฿${Number(p.price).toLocaleString()}</td>
+                    <td style="color:${p.stock > 0 ? 'var(--green)' : 'var(--dim)'};">${p.stock}</td>
+                    <td>
+                        <button class="tbl-btn" onclick="editProduct('${p.id}')">แก้ไข</button>
+                        <button class="tbl-btn del" onclick="delProduct('${p.id}')">ลบ</button>
+                    </td>
+                </tr>`).join('');
+    };
+
+    window.handleProductSubmit = async (e) => {
+        e.preventDefault();
+        const id  = document.getElementById('editId').value;
+        const btn = document.getElementById('submitBtn');
+        const data = {
+            name:         document.getElementById('pName').value.trim(),
+            img:          document.getElementById('pImg').value.trim(),
+            price:        Number(document.getElementById('pPrice').value),
+            stock:        Number(document.getElementById('pStock').value),
+            downloadLink: document.getElementById('pLink').value.trim()
+        };
+        btn.innerHTML = '<span class="spinner"></span>บันทึก...';
+        btn.disabled  = true;
+        try {
+            if (id) { await updateDoc(doc(db, "products", id), data); showToast('แก้ไขสินค้าสำเร็จ!', 'success'); }
+            else    { await addDoc(collection(db, "products"), data); showToast('เพิ่มสินค้าสำเร็จ!', 'success'); }
+            resetProductForm();
+        } catch (err) {
+            showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+        } finally {
+            btn.innerHTML = id ? 'อัปเดต' : 'บันทึก';
+            btn.disabled  = false;
+        }
+    };
+
+    window.editProduct = (id) => {
+        const p = products.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('editId').value  = p.id;
+        document.getElementById('pName').value   = p.name;
+        document.getElementById('pImg').value    = p.img;
+        document.getElementById('pPrice').value  = p.price;
+        document.getElementById('pStock').value  = p.stock;
+        document.getElementById('pLink').value   = p.downloadLink;
+        document.getElementById('formTitle').innerText = `แก้ไข: ${p.name}`;
+        document.getElementById('submitBtn').innerText = 'อัปเดต';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.resetProductForm = () => {
+        document.getElementById('productForm').reset();
+        document.getElementById('editId').value = '';
+        document.getElementById('formTitle').innerText = 'เพิ่มสินค้าใหม่';
+        document.getElementById('submitBtn').innerText = 'บันทึก';
+    };
+
+    window.delProduct = async (id) => {
+        const p = products.find(x => x.id === id);
+        if (!p || !confirm(`ลบสินค้า "${p.name}" ?`)) return;
+        try {
+            await deleteDoc(doc(db, "products", id));
+            showToast('ลบสินค้าสำเร็จ', 'success');
+        } catch { showToast('ลบไม่สำเร็จ', 'error'); }
+    };
+
+    // ── MODAL ──
+    function resetModal() {
+        document.getElementById('walletLink').value    = '';
+        document.getElementById('phoneNumber').value   = '';
+        const vr = document.getElementById('verifyResult');
+        vr.style.display = 'none'; vr.className = 'verify-result'; vr.innerHTML = '';
+        document.getElementById('downloadBox').style.display = 'none';
+
+        const vBtn = document.getElementById('verifyBtn');
+        vBtn.style.display = 'block';
+        vBtn.disabled      = false;
+        vBtn.innerHTML     = '🔍 ตรวจสอบซองเงิน';
+
+        const pBtn = document.getElementById('payBtn');
+        pBtn.style.display = 'block';
+        pBtn.disabled      = true;
+        pBtn.innerHTML     = '✅ ชำระเงิน';
+    }
+
+    window.openBuyModal = (id) => {
+        currentBuyingItem = products.find(x => x.id === id);
+        if (!currentBuyingItem) return;
+        document.getElementById('buyItemName').innerText = currentBuyingItem.name;
+        document.getElementById('buyItemPrice').innerHTML = `${Number(currentBuyingItem.price).toLocaleString()} <small>฿</small>`;
+        resetModal();
+        document.getElementById('buyModal').classList.add('open');
+        document.body.classList.add('modal-open');
+    };
+
+    window.closeModal = () => {
+        document.getElementById('buyModal').classList.remove('open');
+        document.body.classList.remove('modal-open');
+        currentBuyingItem = null;
+    };
+
+    document.getElementById('buyModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('buyModal')) closeModal();
+    });
+
+    // ── VERIFY VOUCHER ──
+    function setVerifyResult(type, html) {
+        const box = document.getElementById('verifyResult');
+        box.style.display = 'block';
+        box.className = `verify-result ${type}`;
+        box.innerHTML = html;
+    }
+
+    window.verifyVoucher = async () => {
+        const link  = document.getElementById('walletLink').value.trim();
+        const phone = document.getElementById('phoneNumber').value.trim();
+        const vBtn  = document.getElementById('verifyBtn');
+        const pBtn  = document.getElementById('payBtn');
+
+        if (!link.includes("gift.truemoney.com"))
+            return setVerifyResult('error', '❌ ลิงก์ไม่ใช่ซองอั่งเปา TrueMoney');
+        if (!/^0[0-9]{9}$/.test(phone))
+            return setVerifyResult('error', '❌ กรุณากรอกเบอร์มือถือ 10 หลักให้ถูกต้อง');
+
+        const hashMatch = link.match(/vouchers?\/([a-zA-Z0-9]+)/);
+        if (!hashMatch) return setVerifyResult('error', '❌ ไม่สามารถอ่านลิงก์ซองได้');
+        const voucherHash = hashMatch[1];
+
+        vBtn.innerHTML = '<span class="spinner"></span>กำลังตรวจสอบ...';
+        vBtn.disabled  = true;
+        pBtn.disabled  = true;
+        document.getElementById('verifyResult').style.display = 'none';
+
+        try {
+            // 1. Check duplicate
+            const dupSnap = await getDocs(query(collection(db, "orders"), where("walletLink", "==", link)));
+            if (!dupSnap.empty) {
+                setVerifyResult('error', '❌ ซองนี้ถูกใช้ในระบบแล้ว กรุณาใช้ซองใหม่!');
+                return;
+            }
+
+            // 2. TrueMoney API
+            const apiUrl   = `https://gift.truemoney.com/campaign/vouchers/${voucherHash}/applicable-of-voucher?mobile=${phone}`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+            const res  = await fetch(proxyUrl);
+            const json = await res.json();
+            const data = JSON.parse(json.contents);
+
+            if (data.status?.code === "SUCCESS") {
+                const amount = parseFloat(data.data.voucher.amount_baht);
+                const need   = currentBuyingItem.price;
+                if (amount >= need) {
+                    setVerifyResult('success', `✅ ยอดในซอง: <strong>${amount} ฿</strong> | ราคาสินค้า: <strong>${need} ฿</strong><br>✅ ยอดครบถ้วน สามารถชำระได้!`);
+                    pBtn.disabled = false;
+                } else {
+                    setVerifyResult('error', `❌ ยอดในซอง <strong>${amount} ฿</strong> ไม่พอ — ต้องการ <strong>${need} ฿</strong>`);
+                }
+            } else if (data.status?.code === "VOUCHER_NOT_FOUND") {
+                setVerifyResult('error', '❌ ไม่พบซองเงินนี้ หรือถูกใช้ไปแล้ว');
+            } else if (data.status?.code === "VOUCHER_OUT_OF_DATE") {
+                setVerifyResult('error', '❌ ซองหมดอายุแล้ว กรุณาใช้ซองใหม่');
+            } else {
+                setVerifyResult('error', `❌ ผิดพลาด: ${data.status?.message || 'ไม่ทราบสาเหตุ'}`);
+            }
+
+        } catch (err) {
+            setVerifyResult('error', '❌ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
+            console.error(err);
+        } finally {
+            // ✅ FIX: always reset verifyBtn regardless of outcome
+            vBtn.innerHTML = '🔍 ตรวจสอบซองเงิน';
+            vBtn.disabled  = false;
+        }
+    };
+
+    // ── PROCESS PAYMENT — FIX: Firestore transaction for atomic stock decrement ──
+    window.processPayment = async () => {
+        const link = document.getElementById('walletLink').value.trim();
+        const vBtn = document.getElementById('verifyBtn');
+        const pBtn = document.getElementById('payBtn');
+        if (!currentBuyingItem || !link || !currentUser) return;
+
+        pBtn.innerHTML = '<span class="spinner"></span>กำลังบันทึก...';
+        pBtn.disabled  = true;
+        vBtn.disabled  = true;
+
+        try {
+            const productRef = doc(db, "products", currentBuyingItem.id);
+
+            // ✅ FIX: Atomic transaction prevents race condition
+            await runTransaction(db, async (tx) => {
+                const snap = await tx.get(productRef);
+                if (!snap.exists()) throw new Error("ไม่พบสินค้า");
+                const stock = snap.data().stock;
+                if (stock <= 0) throw new Error("สินค้าหมดแล้ว");
+                tx.update(productRef, { stock: stock - 1 });
+                const orderRef = doc(collection(db, "orders"));
+                tx.set(orderRef, {
+                    userName:    currentUser.name,
+                    productName: currentBuyingItem.name,
+                    price:       currentBuyingItem.price,
+                    walletLink:  link,
+                    timestamp:   new Date().toISOString()
+                });
+            });
+
+            document.getElementById('dlLink').href = currentBuyingItem.downloadLink;
+            document.getElementById('downloadBox').style.display = 'block';
+            document.getElementById('verifyResult').style.display = 'none';
+            pBtn.style.display = 'none';
+            vBtn.style.display = 'none'; // ✅ FIX: hide verifyBtn on success
+
+        } catch (err) {
+            const msg = err.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+            setVerifyResult('error', `❌ ${msg}`);
+            pBtn.innerHTML = '✅ ชำระเงิน';
+            pBtn.disabled  = false;
+            vBtn.disabled  = false;
+        }
+    };
+
+</script>
+</body>
+</html>
