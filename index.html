@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPXZ SHOP - English Name Edition</title>
+    <title>BPXZ SHOP - Username Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #ff4d4d; --bg: #0a0a0a; --card: #151515; --text: #fff; --success: #2ecc71; }
@@ -14,7 +14,8 @@
         .section { display:none; background:var(--card); padding:30px; border-radius:15px; border:1px solid #222; }
         .active { display:block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .btn-main { background:var(--primary); color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; margin-bottom:10px; }
+        .btn-main { background:var(--primary); color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; margin-bottom:10px; transition: 0.2s; }
+        .btn-main:hover { opacity: 0.8; }
         input { background:#222; border:1px solid #333; color:white; padding:12px; border-radius:8px; width:100%; margin-bottom:15px; outline: none; }
         .product-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:20px; }
         .admin-item { background: #1a1a1a; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
@@ -26,23 +27,23 @@
         <h1 onclick="location.reload()" style="cursor:pointer; color:var(--primary);">BPXZ SHOP</h1>
         <div id="navMenu">
             <button onclick="showSection('login')" style="color:white; background:none; border:none; cursor:pointer;">Login</button>
-            <button onclick="showSection('register')" style="color:var(--primary); background:none; border:1px solid var(--primary); padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:10px;">Sign Up</button>
+            <button onclick="showSection('register')" style="color:var(--primary); background:none; border:1px solid var(--primary); padding:5px 15px; border-radius:5px; cursor:pointer; margin-left:10px;">Sign Up</button>
         </div>
         <div id="userMenu" style="display:none;">
-            <span id="userDisp" style="font-size:0.8rem; color: #aaa;"></span>
-            <button id="admBtn" onclick="showSection('admin')" style="display:none; color:yellow; background:none; border:none; cursor:pointer; margin-left:10px;">[Admin]</button>
-            <button onclick="logout()" style="color:white; background:none; border:none; cursor:pointer; margin-left:10px;">Logout</button>
+            <span id="userDisp" style="font-size:0.8rem; color: #aaa; background: #222; padding: 5px 10px; border-radius: 20px;"></span>
+            <button id="admBtn" onclick="showSection('admin')" style="display:none; color:yellow; background:none; border:none; cursor:pointer; margin-left:15px;">[Admin Panel]</button>
+            <button onclick="logout()" style="color:white; background:none; border:none; cursor:pointer; margin-left:15px;">Logout</button>
         </div>
     </nav>
 
     <div class="container">
         <section id="register" class="section">
-            <h2 style="text-align:center; margin-bottom:20px;">Create Account</h2>
-            <input type="text" id="regName" placeholder="First Name (English Only)" required>
+            <h2 style="text-align:center; margin-bottom:20px;">Register</h2>
+            <input type="text" id="regUser" placeholder="Username (English & Numbers)" required>
             <input type="email" id="regEmail" placeholder="Email Address" required>
             <input type="password" id="regPass" placeholder="Password (Min 6 chars)" required>
-            <button class="btn-main" onclick="handleRegister()">Register</button>
-            <p style="text-align:center; font-size:0.8rem; color:gray; cursor:pointer;" onclick="showSection('login')">Already have an account? Login</p>
+            <button class="btn-main" onclick="handleRegister()">Create Account</button>
+            <p style="text-align:center; font-size:0.8rem; color:gray; margin-top:10px;">Have an account? <span onclick="showSection('login')" style="color:var(--primary); cursor:pointer;">Login here</span></p>
         </section>
 
         <section id="login" class="section active">
@@ -61,13 +62,13 @@
                 <input type="text" id="pImg" placeholder="Image URL">
                 <input type="text" id="pLink" placeholder="Download Link">
                 <button class="btn-main" id="saveBtn" onclick="saveProduct()">Save Product</button>
-                <button id="cancelEdit" onclick="resetForm()" style="display:none; background:none; color:gray; border:none; cursor:pointer; width:100%;">Cancel Edit</button>
+                <button id="cancelEdit" onclick="resetForm()" style="display:none; background:none; color:gray; border:none; cursor:pointer; width:100%; margin-top:5px;">Cancel</button>
             </div>
             <div id="adminList"></div>
         </section>
 
         <section id="shop" class="section">
-            <h2 style="margin-bottom:20px;">Shop Items</h2>
+            <h2 style="margin-bottom:20px;">Store</h2>
             <div id="productGrid" class="product-grid"></div>
         </section>
     </div>
@@ -95,24 +96,24 @@
             document.getElementById(id).classList.add('active');
         };
 
-        // --- Register (First Name English Only) ---
+        // --- Register Logic (Username) ---
         window.handleRegister = async () => {
-            const name = regName.value.trim();
+            const user = regUser.value.trim();
             const email = regEmail.value.trim();
             const pass = regPass.value.trim();
 
-            // เช็คว่าเป็นภาษาอังกฤษและไม่มีเว้นวรรค (ชื่อเดียว)
-            if(!/^[A-Za-z]+$/.test(name)) return alert("Please enter First Name in English only (No spaces/numbers).");
+            if(!/^[A-Za-z0-9]+$/.test(user)) return alert("Username must be English and Numbers only.");
 
             try {
                 const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-                await updateProfile(userCred.user, { displayName: name });
+                await updateProfile(userCred.user, { displayName: user });
                 await sendEmailVerification(userCred.user);
-                alert("Success! Verification email sent.");
+                alert("Success! Please check your email inbox to verify.");
                 showSection('login');
             } catch (e) { alert(e.message); }
         };
 
+        // --- Login Logic ---
         window.handleLogin = async () => {
             const email = loginEmail.value.trim();
             const pass = loginPass.value.trim();
@@ -122,40 +123,39 @@
             try {
                 const userCred = await signInWithEmailAndPassword(auth, email, pass);
                 if (!userCred.user.emailVerified) {
-                    alert("Verify your email first!");
-                    await signOut(auth);
+                    alert("Please verify your email!"); await signOut(auth);
                 }
-            } catch (e) { alert("Invalid credentials"); }
+            } catch (e) { alert("Invalid Credentials"); }
         };
 
         onAuthStateChanged(auth, (user) => {
             const isAdmin = localStorage.getItem('isAdmin') === 'true';
             if ((user && user.emailVerified) || isAdmin) {
                 document.getElementById('navMenu').style.display = 'none';
-                document.getElementById('userMenu').style.display = 'block';
-                document.getElementById('userDisp').innerText = isAdmin ? "Administrator" : `Hi, ${user.displayName}`;
+                document.getElementById('userMenu').style.display = 'flex';
+                document.getElementById('userDisp').innerText = isAdmin ? "Admin Mode" : `Hi, ${user.displayName}`;
                 if(isAdmin) document.getElementById('admBtn').style.display = 'inline';
                 showSection('shop');
             }
         });
 
-        // --- Product Logic ---
+        // --- Product Database ---
         let allProducts = [];
         onSnapshot(collection(db, "products"), (snap) => {
             allProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
             document.getElementById('adminList').innerHTML = allProducts.map(p => `
                 <div class="admin-item">
-                    <span>${p.name} (${p.price}฿)</span>
+                    <span>${p.name} - ${p.price}฿</span>
                     <div>
-                        <button onclick="editProduct('${p.id}')" style="color:cyan; background:none; border:none; cursor:pointer;">[Edit]</button>
-                        <button onclick="deleteProduct('${p.id}')" style="color:red; background:none; border:none; cursor:pointer; margin-left:10px;">[Del]</button>
+                        <button onclick="editProduct('${p.id}')" style="color:cyan; background:none; border:none; cursor:pointer;">Edit</button>
+                        <button onclick="deleteProduct('${p.id}')" style="color:red; background:none; border:none; cursor:pointer; margin-left:10px;">Del</button>
                     </div>
                 </div>`).join('');
             document.getElementById('productGrid').innerHTML = allProducts.map(p => `
                 <div style="background:#222; padding:15px; border-radius:12px; text-align:center; border: 1px solid #333;">
                     <img src="${p.img}" style="width:100%; height:130px; object-fit:cover; border-radius:8px;">
-                    <h4 style="margin:12px 0 5px 0;">${p.name}</h4>
-                    <button class="btn-main" onclick="alert('API Ready')">${p.price} THB</button>
+                    <h4 style="margin:10px 0;">${p.name}</h4>
+                    <button class="btn-main" onclick="alert('Proceed to API Payment')">${p.price} THB</button>
                 </div>`).join('');
         });
 
@@ -164,27 +164,25 @@
             const id = editId.value;
             if (id) await updateDoc(doc(db, "products", id), data);
             else await addDoc(collection(db, "products"), data);
-            resetForm();
-            alert("Done!");
+            resetForm(); alert("Saved!");
         };
 
         window.editProduct = (id) => {
             const p = allProducts.find(x => x.id === id);
             editId.value = p.id; pName.value = p.name; pPrice.value = p.price; pImg.value = p.img; pLink.value = p.downloadLink;
             formTitle.innerText = "Edit: " + p.name;
-            saveBtn.innerText = "Update";
+            saveBtn.innerText = "Update Now";
             document.getElementById('cancelEdit').style.display = 'block';
             window.scrollTo(0,0);
         };
 
         window.resetForm = () => {
             editId.value=""; pName.value=""; pPrice.value=""; pImg.value=""; pLink.value="";
-            formTitle.innerText = "Manage Products";
-            saveBtn.innerText = "Save Product";
+            formTitle.innerText = "Manage Products"; saveBtn.innerText = "Save Product";
             document.getElementById('cancelEdit').style.display = 'none';
         };
 
-        window.deleteProduct = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
+        window.deleteProduct = async (id) => { if(confirm("Confirm Delete?")) await deleteDoc(doc(db, "products", id)); };
         window.logout = () => { localStorage.clear(); signOut(auth).then(() => location.reload()); };
     </script>
 </body>
