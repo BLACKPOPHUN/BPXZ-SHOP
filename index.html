@@ -3,108 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPXZ SHOP - API GIFT SYSTEM</title>
+    <title>BPXZ SHOP | ULTIMATE</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff0000; --bg: #0a0a0a; --card: #121212; --text: #fff; }
+        :root { --primary: #ff0000; --hover: #cc0000; --bg: #0a0a0a; --card: #121212; --input: #1e1e1e; --text: #fff; }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Kanit',sans-serif; }
-        body { background: var(--bg); color: var(--text); }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
         
-        /* Navigation */
-        nav { background: #000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); position: sticky; top:0; z-index: 1000; }
-        nav h1 { color: var(--primary); text-transform: uppercase; cursor: pointer; }
+        /* Nav */
+        nav { background: #000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); position: sticky; top:0; z-index: 1000; box-shadow: 0 0 20px rgba(255,0,0,0.2); }
+        nav h1 { color: var(--primary); text-transform: uppercase; cursor: pointer; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
 
         .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-        .section { display: none; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid #222; }
+        .section { display: none; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid #222; margin-bottom: 20px; }
         .active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Buttons & Inputs */
-        input { background: #1e1e1e; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 15px; outline: none; }
-        input:focus { border-color: var(--primary); }
+        /* UI Elements */
+        input { background: var(--input); border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(255,0,0,0.4); }
         .btn-main { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
-        .btn-main:disabled { background: #444; cursor: not-allowed; }
+        .btn-main:hover { background: var(--hover); transform: scale(1.02); }
+        .btn-main:disabled { background: #444; cursor: not-allowed; transform: none; }
 
         /* Product Card */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        .product-card { background: var(--card); border: 1px solid #222; border-radius: 15px; padding: 20px; text-align: center; }
-        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        .product-card { background: var(--card); border: 1px solid #222; border-radius: 15px; padding: 20px; text-align: center; transition: 0.3s; }
+        .product-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .product-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333; }
+        .price-tag { color: var(--primary); font-size: 1.6rem; font-weight: bold; margin: 10px 0; }
 
-        /* Payment Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 2000; padding: 15px; }
-        .modal-content { background: #121212; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid var(--primary); text-align: center; }
-        
-        .status-box { margin: 15px 0; padding: 10px; border-radius: 8px; display: none; font-size: 0.9rem; }
+        /* Modal */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal-content { background: #121212; padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; border: 2px solid var(--primary); text-align: center; }
+
+        .status-box { margin: 15px 0; padding: 12px; border-radius: 8px; display: none; font-size: 0.9rem; font-weight: bold; }
         .success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
         .error { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+
+        /* Badge & History */
+        .badge { background: var(--primary); font-size: 0.7rem; padding: 3px 8px; border-radius: 5px; margin-left: 8px; }
+        .history-item { background: #000; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
     <nav>
-        <h1 onclick="location.reload()">BPXZ SHOP</h1>
+        <h1 onclick="location.reload()">BPXZ <span style="color:#fff">SHOP</span></h1>
         <div id="navMenu">
             <button onclick="showSection('login')" style="color:white; background:none; border:none; cursor:pointer;">Login</button>
+            <button onclick="showSection('register')" style="color:var(--primary); background:none; border:1px solid var(--primary); padding:5px 15px; border-radius:8px; cursor:pointer; margin-left:10px;">Sign Up</button>
         </div>
-        <div id="userMenu" style="display:none;">
-            <span id="userDisp" style="color:#aaa;"></span>
-            <button onclick="logout()" style="color:var(--primary); background:none; border:none; cursor:pointer; margin-left:15px;">Logout</button>
+        <div id="userMenu" style="display:none; align-items: center;">
+            <span style="font-size:0.8rem; background:#222; padding:5px 12px; border-radius:20px;">
+                <span id="userDisp"></span><span id="adminBadge" class="badge" style="display:none;">ADMIN</span>
+            </span>
+            <button onclick="logout()" style="color:var(--primary); background:none; border:none; cursor:pointer; margin-left:15px; font-weight:bold;">Logout</button>
         </div>
     </nav>
 
     <div class="container">
+        <section id="register" class="section">
+            <h2 style="text-align:center; margin-bottom:20px; color:var(--primary);">CREATE ACCOUNT</h2>
+            <input type="text" id="regUser" placeholder="Username (English/Numbers)">
+            <input type="email" id="regEmail" placeholder="Email Address">
+            <input type="password" id="regPass" placeholder="Password (6+ chars)">
+            <button class="btn-main" onclick="handleRegister()">Register & Verify Email</button>
+        </section>
+
         <section id="login" class="section active">
-            <h2 style="text-align:center; margin-bottom:20px;">LOGIN</h2>
+            <h2 style="text-align:center; margin-bottom:20px; color:var(--primary);">MEMBER LOGIN</h2>
             <input type="text" id="loginEmail" placeholder="Email / Admin ID">
             <input type="password" id="loginPass" placeholder="Password">
             <button class="btn-main" onclick="handleLogin()">Login</button>
         </section>
 
         <section id="shop" class="section">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <h2>STORE</h2>
-                <button id="admBtn" onclick="showSection('admin')" style="display:none; color:yellow; background:none; border:1px solid yellow; padding:5px 10px; border-radius:5px; cursor:pointer;">MANAGE</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+                <h2>AVAILABLE ITEMS</h2>
+                <div id="adminPanelBtn" style="display:none;">
+                    <button onclick="showSection('admin')" style="color:yellow; background:none; border:1px solid yellow; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold;">MANAGE STORE</button>
+                </div>
             </div>
             <div id="productGrid" class="product-grid"></div>
+            
+            <div id="historySection" style="margin-top:50px;">
+                <h3 style="margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">Purchase History</h3>
+                <div id="orderList"></div>
+            </div>
         </section>
 
-        <section id="admin" class="section">
-            <h2 id="formTitle">Manage Product</h2>
+        <section id="admin" class="section" style="border: 2px solid var(--primary);">
+            <h2 id="formTitle" style="color:var(--primary); margin-bottom:20px;">PRODUCT MANAGEMENT</h2>
             <input type="hidden" id="editId">
             <input type="text" id="pName" placeholder="Product Name">
             <input type="number" id="pPrice" placeholder="Price (THB)">
             <input type="text" id="pImg" placeholder="Image URL">
-            <input type="text" id="pLink" placeholder="Download Link">
+            <input type="text" id="pLink" placeholder="Download Link (Link/Key)">
             <button class="btn-main" id="saveBtn" onclick="saveProduct()">Save Product</button>
-            <button onclick="showSection('shop')" style="width:100%; background:none; color:gray; border:none; margin-top:10px; cursor:pointer;">Back to Shop</button>
+            <button onclick="showSection('shop')" style="width:100%; background:none; color:gray; border:none; margin-top:15px; cursor:pointer;">Back to Shop</button>
         </section>
     </div>
 
     <div id="payModal" class="modal">
         <div class="modal-content">
-            <h3 id="buyItemName">Product Name</h3>
-            <p style="margin: 10px 0;">Price: <span id="buyItemPrice" style="color:var(--primary); font-weight:bold;">0</span> ฿</p>
-            <hr style="border:0; border-top:1px solid #333; margin: 15px 0;">
-            
+            <h3 id="buyItemName" style="color:var(--primary);">Product Name</h3>
+            <p style="margin: 10px 0;">Price: <span id="buyItemPrice" style="font-weight:bold; font-size:1.4rem;">0</span> ฿</p>
             <input type="text" id="giftLink" placeholder="วางลิงก์ซองของขวัญที่นี่">
-            <button class="btn-main" id="btnConfirmPay" onclick="checkGift()">ยืนยันการจ่ายเงิน</button>
-            
+            <button class="btn-main" id="btnConfirmPay" onclick="checkGift()">Confirm Payment</button>
             <div id="statusMsg" class="status-box"></div>
-            
-            <div id="downloadArea" style="display:none; margin-top:15px; border:2px dashed #2ecc71; padding:15px; border-radius:10px;">
-                <p style="color:#2ecc71; margin-bottom:5px;">จ่ายเงินสำเร็จ!</p>
-                <a id="fileLink" href="#" target="_blank" style="color:white; text-decoration:underline;">คลิกเพื่อรับสินค้า</a>
+            <div id="downloadArea" style="display:none; margin-top:20px; border:2px dashed #2ecc71; padding:20px; border-radius:10px;">
+                <p style="color:#2ecc71; margin-bottom:10px; font-weight:bold;">Payment Success!</p>
+                <a id="fileLink" href="#" target="_blank" style="background:#2ecc71; color:white; padding:10px 20px; border-radius:5px; text-decoration:none; display:inline-block; font-weight:bold;">GET YOUR ITEM</a>
             </div>
-
-            <button onclick="closeModal()" style="margin-top:20px; color:#666; background:none; border:none; cursor:pointer;">ยกเลิก</button>
+            <button onclick="closeModal()" id="btnCloseModal" style="margin-top:20px; color:#666; background:none; border:none; cursor:pointer;">Cancel / Close</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // *** เปลี่ยนเป็น Config ของคุณ ***
         const firebaseConfig = {
             apiKey: "AIzaSyCkKUrj5pHqXUvHMI-JpGWqMwlitGe7b0c",
             authDomain: "bpxzshop-2573c.firebaseapp.com",
@@ -114,42 +135,62 @@
             appId: "1:51423151593:web:79c4e1c86fcf6340cff778"
         };
 
-        // *************** เปลี่ยนข้อมูล API ตรงนี้ ***************
         const API_CONF = {
             url: "https://www.planariashop.com/api/truewallet.php",
-            keyapi: "33c60ebefce44b2660a326ed7335d8de", // API Key ของคุณ
-            phone: "0950189983" // เบอร์ที่รับเงิน
+            keyapi: "33c60ebefce44b2660a326ed7335d8de", // ใส่ Key ของคุณ
+            phone: "0950189983" // ใส่เบอร์วอลเล็ตคุณ
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         let selectedItem = null;
+        let currentUser = null;
 
-        // --- Auth ---
-        window.handleLogin = async () => {
-            const email = loginEmail.value.trim(), pass = loginPass.value.trim();
-            if(email === "bpxzshop" && pass === "bpxz7952") { localStorage.setItem('isAdmin', 'true'); location.reload(); return; }
-            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Login Failed"); }
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            const isAdmin = localStorage.getItem('isAdmin') === 'true';
-            if (user || isAdmin) {
-                document.getElementById('navMenu').style.display = 'none';
-                document.getElementById('userMenu').style.display = 'block';
-                document.getElementById('userDisp').innerText = isAdmin ? "ADMIN" : user.displayName || user.email;
-                if(isAdmin) document.getElementById('admBtn').style.display = 'inline';
-                showSection('shop');
-            }
-        });
-
-        // --- UI & Products ---
         window.showSection = (id) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         };
 
+        // --- AUTH SYSTEM ---
+        window.handleRegister = async () => {
+            const user = regUser.value.trim();
+            if(!/^[A-Za-z0-9]+$/.test(user)) return alert("Username must be English/Numbers");
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, regEmail.value, regPass.value);
+                await updateProfile(cred.user, { displayName: user });
+                await sendEmailVerification(cred.user);
+                alert("Success! Check your email to verify account.");
+                showSection('login');
+            } catch (e) { alert(e.message); }
+        };
+
+        window.handleLogin = async () => {
+            const email = loginEmail.value.trim(), pass = loginPass.value.trim();
+            if(email === "bpxzshop" && pass === "bpxz7952") { localStorage.setItem('isAdmin', 'true'); location.reload(); return; }
+            try {
+                const cred = await signInWithEmailAndPassword(auth, email, pass);
+                if (!cred.user.emailVerified) { alert("Verify email first!"); await signOut(auth); }
+            } catch (e) { alert("Login Error"); }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            const isAdmin = localStorage.getItem('isAdmin') === 'true';
+            if (user || isAdmin) {
+                currentUser = user;
+                document.getElementById('navMenu').style.display = 'none';
+                document.getElementById('userMenu').style.display = 'flex';
+                document.getElementById('userDisp').innerText = isAdmin ? "BPXZ_ADMIN" : user.displayName;
+                if(isAdmin) {
+                    document.getElementById('adminBadge').style.display = 'inline';
+                    document.getElementById('adminPanelBtn').style.display = 'block';
+                }
+                showSection('shop');
+                loadHistory(isAdmin ? "admin" : user.uid);
+            }
+        });
+
+        // --- PRODUCT & STORE SYSTEM ---
         let allProducts = [];
         onSnapshot(collection(db, "products"), (snap) => {
             allProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -158,7 +199,7 @@
                 <div class="product-card">
                     <img src="${p.img}">
                     <h3>${p.name}</h3>
-                    <p style="color:var(--primary); font-weight:bold; margin:10px 0;">${p.price} THB</p>
+                    <div class="price-tag">${p.price} ฿</div>
                     <button class="btn-main" onclick="openPayModal('${p.id}')">Buy Now</button>
                     ${isAdmin ? `<div style="margin-top:10px; display:flex; gap:5px;">
                         <button onclick="editProduct('${p.id}')" style="flex:1; background:#333; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;">Edit</button>
@@ -167,26 +208,22 @@
                 </div>`).join('');
         });
 
-        // --- ระบบชำระเงิน API ---
+        // --- PAYMENT & API GIFT SYSTEM ---
         window.openPayModal = (id) => {
             selectedItem = allProducts.find(p => p.id === id);
             buyItemName.innerText = selectedItem.name;
             buyItemPrice.innerText = selectedItem.price;
-            giftLink.value = "";
-            statusMsg.style.display = 'none';
-            downloadArea.style.display = 'none';
-            btnConfirmPay.disabled = false;
-            btnConfirmPay.innerText = "ยืนยันการจ่ายเงิน";
+            giftLink.value = ""; statusMsg.style.display = 'none'; downloadArea.style.display = 'none';
+            btnConfirmPay.disabled = false; btnConfirmPay.innerText = "Confirm Payment";
             document.getElementById('payModal').style.display = 'flex';
         };
 
         window.checkGift = async () => {
             const link = giftLink.value.trim();
-            if(!link.includes("gift.truemoney.com")) return alert("ลิงก์ซองไม่ถูกต้อง");
+            if(!link.includes("gift.truemoney.com")) return alert("Invalid Gift Link");
 
             btnConfirmPay.disabled = true;
-            btnConfirmPay.innerText = "กำลังตรวจสอบ...";
-            statusMsg.style.display = 'none';
+            btnConfirmPay.innerText = "Checking...";
 
             try {
                 const formData = new URLSearchParams();
@@ -194,41 +231,47 @@
                 formData.append('phone', API_CONF.phone);
                 formData.append('gift_link', link);
 
-                const response = await fetch(API_CONF.url, {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch(API_CONF.url, { method: 'POST', body: formData });
                 const res = await response.json();
 
-                if(res.status === "success") {
-                    const amount = parseFloat(res.amount);
-                    if(amount >= selectedItem.price) {
-                        statusMsg.innerText = "ได้รับเงิน: " + amount + " ฿ (สำเร็จ)";
-                        statusMsg.className = "status-box success";
-                        statusMsg.style.display = "block";
-                        fileLink.href = selectedItem.downloadLink;
-                        downloadArea.style.display = "block";
-                    } else {
-                        statusMsg.innerText = "จำนวนเงินไม่ครบ! ต้องการ " + selectedItem.price + " ฿ แต่ซองมีแค่ " + amount + " ฿";
-                        statusMsg.className = "status-box error";
-                        statusMsg.style.display = "block";
-                        btnConfirmPay.disabled = false;
-                        btnConfirmPay.innerText = "ลองอีกครั้ง";
-                    }
+                if(res.status === "success" && parseFloat(res.amount) >= selectedItem.price) {
+                    // บันทึกลง Firestore
+                    await addDoc(collection(db, "orders"), {
+                        uid: currentUser ? currentUser.uid : "admin",
+                        username: currentUser ? currentUser.displayName : "Admin",
+                        productName: selectedItem.name,
+                        amount: res.amount,
+                        date: serverTimestamp()
+                    });
+                    
+                    statusMsg.innerText = `Success! Amount: ${res.amount} ฿`;
+                    statusMsg.className = "status-box success"; statusMsg.style.display = "block";
+                    fileLink.href = selectedItem.downloadLink;
+                    downloadArea.style.display = "block";
+                    btnConfirmPay.style.display = "none";
                 } else {
-                    statusMsg.innerText = res.message || "ลิงก์ซองถูกใช้งานแล้ว หรือผิดพลาด";
-                    statusMsg.className = "status-box error";
-                    statusMsg.style.display = "block";
-                    btnConfirmPay.disabled = false;
-                    btnConfirmPay.innerText = "ลองอีกครั้ง";
+                    statusMsg.innerText = res.message || "Insufficient funds or Link used.";
+                    statusMsg.className = "status-box error"; statusMsg.style.display = "block";
+                    btnConfirmPay.disabled = false; btnConfirmPay.innerText = "Try Again";
                 }
-            } catch (e) {
-                alert("API ขัดข้อง กรุณาลองใหม่ภายหลัง");
-                btnConfirmPay.disabled = false;
-            }
+            } catch (e) { alert("API Error"); btnConfirmPay.disabled = false; }
         };
 
-        // --- Admin Functions ---
+        // --- HISTORY SYSTEM ---
+        function loadHistory(id) {
+            const q = id === "admin" ? query(collection(db, "orders"), orderBy("date", "desc")) : query(collection(db, "orders"), where("uid", "==", id), orderBy("date", "desc"));
+            onSnapshot(q, (snap) => {
+                document.getElementById('orderList').innerHTML = snap.docs.map(d => {
+                    const data = d.data();
+                    return `<div class="history-item">
+                        <b>${data.productName}</b> - ${data.amount} ฿<br>
+                        <small style="color:gray;">${data.date ? data.date.toDate().toLocaleString() : 'Just now'} | User: ${data.username}</small>
+                    </div>`;
+                }).join('') || '<p style="color:gray; font-size:0.8rem;">No purchase history yet.</p>';
+            });
+        }
+
+        // --- ADMIN SYSTEM ---
         window.saveProduct = async () => {
             const data = { name: pName.value, price: Number(pPrice.value), img: pImg.value, downloadLink: pLink.value };
             if(editId.value) await updateDoc(doc(db, "products", editId.value), data);
@@ -238,11 +281,11 @@
         window.editProduct = (id) => {
             const p = allProducts.find(x => x.id === id);
             editId.value=p.id; pName.value=p.name; pPrice.value=p.price; pImg.value=p.img; pLink.value=p.downloadLink;
-            formTitle.innerText = "Edit: " + p.name; showSection('admin');
+            formTitle.innerText = "Edit: " + p.name; showSection('admin'); window.scrollTo(0,0);
         };
-        window.deleteProduct = async (id) => { if(confirm("ลบ?")) await deleteDoc(doc(db, "products", id)); };
-        window.resetForm = () => { editId.value=""; pName.value=""; pPrice.value=""; pImg.value=""; pLink.value=""; formTitle.innerText="Manage Product"; };
-        window.closeModal = () => document.getElementById('payModal').style.display = 'none';
+        window.deleteProduct = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
+        window.resetForm = () => { editId.value=""; pName.value=""; pPrice.value=""; pImg.value=""; pLink.value=""; formTitle.innerText="PRODUCT MANAGEMENT"; };
+        window.closeModal = () => { document.getElementById('payModal').style.display = 'none'; btnConfirmPay.style.display = "block"; };
         window.logout = () => { localStorage.clear(); signOut(auth).then(() => location.reload()); };
     </script>
 </body>
