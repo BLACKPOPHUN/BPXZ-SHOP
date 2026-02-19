@@ -2,145 +2,390 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>BPXZ_ST_SECURE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPXZ_SECURE_V5_STATION</title>
     <style>
-        :root{--p:#e63946;--b:#050505;--c:#111;--t:#fff}
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Kanit',sans-serif;user-select:none}
-        body{background:var(--b);color:var(--t);display:flex;flex-direction:column;min-height:100vh}
-        .v-gate{max-width:400px;margin:20vh auto;background:var(--c);padding:30px;border-radius:20px;border:1px solid #333}
-        input{width:100%;padding:14px;margin:10px 0;background:#000;border:1px solid #444;color:#fff;border-radius:10px}
-        .v-btn{width:100%;padding:15px;background:var(--p);border:none;color:#fff;border-radius:10px;font-weight:bold;cursor:pointer}
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding:20px}
-        .hide{display:none}.show{display:block}
+        /* UI DESIGN SYSTEM - LAYER 1 */
+        :root {
+            --primary: #e63946; --secondary: #1d3557; --accent: #457b9d;
+            --background: #050505; --surface: #121212; --text: #f1faee;
+            --success: #2a9d8f; --warning: #e9c46a; --danger: #d00000;
+            --font-main: 'Kanit', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
+        body { 
+            background-color: var(--background); color: var(--text);
+            overflow-x: hidden; min-height: 100vh; user-select: none;
+        }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* AUTH GATE */
+        .gate-container {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle, #1a1a1a 0%, #050505 100%);
+        }
+        .gate-card {
+            background: var(--surface); padding: 40px; border-radius: 24px;
+            width: 100%; max-width: 420px; border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); transition: 0.4s;
+        }
+        .gate-card:hover { border-color: var(--primary); box-shadow: 0 0 30px rgba(230, 57, 70, 0.2); }
+        
+        /* FORM ELEMENTS */
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #888; }
+        .input-field {
+            width: 100%; padding: 14px 18px; background: #000; border: 1px solid #444;
+            color: #fff; border-radius: 12px; transition: 0.3s; font-size: 1rem;
+        }
+        .input-field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1); }
+        .btn-auth {
+            width: 100%; padding: 16px; background: var(--primary); border: none;
+            color: white; border-radius: 12px; font-weight: 700; cursor: pointer;
+            font-size: 1.1rem; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3); }
+
+        /* MAIN STORE UI */
+        header {
+            padding: 20px 5%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333;
+        }
+        header h1 { font-size: 1.8rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        header span { color: white; }
+
+        .store-container { padding: 40px 5%; max-width: 1400px; margin: auto; }
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px; animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .p-card {
+            background: var(--surface); border-radius: 20px; overflow: hidden;
+            border: 1px solid #222; transition: 0.3s; position: relative;
+        }
+        .p-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .p-img { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #222; }
+        .p-info { padding: 25px; }
+        .p-info h3 { font-size: 1.3rem; margin-bottom: 10px; }
+        .p-price { font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+        .btn-buy {
+            width: 100%; padding: 14px; background: #222; border: 1px solid #444;
+            color: white; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .btn-buy:hover { background: var(--primary); border-color: var(--primary); }
+        .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* TOAST SYSTEM */
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+        .toast {
+            background: var(--surface); border-left: 5px solid var(--primary);
+            padding: 16px 25px; border-radius: 8px; margin-top: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease forwards;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* MODAL SYSTEM */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: var(--surface); width: 90%; max-width: 450px;
+            border-radius: 24px; padding: 40px; text-align: center; border: 1px solid #333;
+        }
+
+        /*  */
+
+        /* UTILS */
+        .hidden { display: none; }
+        .loading-spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(230, 57, 70, 0.1);
+            border-top: 4px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin: auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="g-a" class="v-gate">
-        <h2 style="text-align:center;color:var(--p);margin-bottom:20px">ACCESS CONTROL</h2>
-        <input type="text" id="i-u" placeholder="Identity">
-        <input type="password" id="i-p" placeholder="Passphrase">
-        <button class="v-btn" id="l-b">DECRYPT & ENTER</button>
+    <div id="ui-gate" class="gate-container">
+        <div class="gate-card">
+            <h2 style="margin-bottom: 10px; text-align:center;">BPXZ <span style="color:var(--primary)">SECURITY</span></h2>
+            <p style="text-align: center; color: #777; font-size: 0.9rem; margin-bottom: 30px;">AUTHENTICATION REQUIRED TO ACCESS STORE</p>
+            
+            <div class="input-group">
+                <label>IDENTITY (EMAIL)</label>
+                <input type="text" id="node-user" class="input-field" placeholder="you@domain.com">
+            </div>
+            <div class="input-group">
+                <label>PASSPHRASE</label>
+                <input type="password" id="node-pass" class="input-field" placeholder="••••••••">
+            </div>
+            
+            <button id="gate-exec" class="btn-auth">DECRYPT & ACCESS</button>
+            <div id="gate-status" style="margin-top: 20px; text-align: center; font-size: 0.8rem; color: var(--primary); height: 20px;"></div>
+        </div>
     </div>
 
-    <div id="g-s" class="hide">
-        <nav style="background:#000;padding:20px;border-bottom:2px solid var(--p);display:flex;justify-content:space-between">
-            <h1 style="color:var(--p);font-weight:900">BPXZ-SHOP</h1>
-            <button onclick="location.reload()" style="background:none;border:none;color:#555">LOGOUT</button>
-        </nav>
-        <div id="p-g" class="grid"></div>
+    <div id="ui-main" class="hidden">
+        <header>
+            <h1>BPXZ<span>SHOP</span></h1>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <span id="user-display" style="font-size: 0.9rem; color: #aaa;"></span>
+                <button onclick="location.reload()" style="background: none; border: 1px solid #333; color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer;">LOGOUT</button>
+            </div>
+        </header>
+
+        <div class="store-container">
+            <div id="loader" class="loading-spinner" style="margin: 100px auto;"></div>
+            <div id="product-area" class="product-grid"></div>
+        </div>
     </div>
+
+    <div id="modal-pay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="item-title" style="font-size: 1.5rem; margin-bottom: 10px;"></h3>
+            <p id="item-price" style="font-size: 2rem; color: var(--primary); font-weight: 900; margin-bottom: 30px;"></p>
+            
+            <div class="input-group" style="text-align: left;">
+                <label>TRUEMONEY GIFT LINK</label>
+                <input type="text" id="gift-token" class="input-field" placeholder="https://gift.truemoney.com/...">
+            </div>
+
+            <button id="pay-exec" class="btn-auth">COMPLETE TRANSACTION</button>
+            <p style="margin-top: 20px; font-size: 0.8rem; color: #666; cursor: pointer;" onclick="closeModal()">[ CANCEL ]</p>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
 
     <script type="module">
-        import { initializeApp as _iA } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-        import { getAuth as _gA, signInWithEmailAndPassword as _sE, onAuthStateChanged as _oA } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-        import { getFirestore as _gF, collection as _cL, onSnapshot as _oS, doc as _dC, getDoc as _gD, updateDoc as _uD } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        // CORE IMPORT MODULES
+        import { initializeApp as _initA } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth as _getA, signInWithEmailAndPassword as _login, onAuthStateChanged as _listenA, signOut as _killS } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { getFirestore as _getD, collection as _col, onSnapshot as _snap, doc as _doc, getDoc as _getDoc, updateDoc as _upD } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-        // --- LAYER: EXTREME FIREBASE MASKING ---
-        const _0xM = (s) => atob(s);
-        const _0xD = [
-            "QUl6YVN5REFuSnpsbjFyZTlDQklxYTJMb29VbHNBbjN2Y3dHTk9j", // AIza...
-            "YnB4enMyLmZpcmViYXNlYXBwLmNvbQ==",                     // bpxzs2...
-            "YnB4enMy",                                             // projId
-            "YnB4enMyLmZpcmViYXNlc3RvcmFnZS5hcHA=",                // bucket
-            "MTk5NDgyMTMyNjA0",                                     // sender
-            "MToxOTk0ODIxMzI2MDQ6d2ViOmVhODg3ZDc1ZWQxZDAxNWE2NjFmOQ==", // appId
-            "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ3MzgyMTk3NTkzNDc5NTg3Ny82ZEZlX29OME0xZEZEdnRFNzk1U3RVNHpwM0Zhc05JbEE3MldXLV9kTmViY2duU2lIS1I2b2h1VXdQc0R1YmpqVEVOTw=="
+        // 
+
+        /* ENCRYPTED CONFIGURATION DATA 
+           LEVEL: MAXIMUM OBFUSCATION 
+        */
+        const _vMap = [
+            "QUl6YVN5REFuSnpsbjFyZTlDQklxYTJMb29VbHNBbjN2Y3dHTk9j", // 0
+            "YnB4enMyLmZpcmViYXNlYXBwLmNvbQ==",                     // 1
+            "YnB4enMy",                                             // 2
+            "YnB4enMyLmZpcmViYXNlc3RvcmFnZS5hcHA=",                // 3
+            "MTk5NDgyMTMyNjA0",                                     // 4
+            "MToxOTk0ODIxMzI2MDQ6d2ViOmVhODg3ZDc1ZWQxZDAxNWE2NjFmOQ==", // 5
+            "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ3MzgyMTk3NTkzNDc5NTg3Ny82ZEZlX29OME0xZEZEdnRFNzk1U3RVNHpwM0Zhc05JbEE3MldXLV9kTmViY2duU2lIS1I2b2h1VXdQc0R1YmpqVEVOTw==" // 6
         ];
 
-        // พรางชื่อ Key ของ Firebase Object
-        const _fbC = {
-            [_0xM('YXBpS2V5')]: _0xM(_0xD[0]),
-            [_0xM('YXV0aERvbWFpbg==')]: _0xM(_0xD[1]),
-            [_0xM('cHJvamVjdElk')]: _0xM(_0xD[2]),
-            [_0xM('c3RvcmFnZUJ1Y2tldA==')]: _0xM(_0xD[3]),
-            [_0xM('bWVzc2FnaW5nU2VuZGVySWQ=')]: _0xM(_0xD[4]),
-            [_0xM('YXBwSWQ=')]: _0xM(_0xD[5])
+        const _vDec = (idx) => atob(_vMap[idx]);
+
+        const _sysConfig = {
+            apiKey: _vDec(0), authDomain: _vDec(1), projectId: _vDec(2),
+            storageBucket: _vDec(3), messagingSenderId: _vDec(4), appId: _vDec(5)
         };
 
-        const _app = _iA(_fbC);
-        const _auth = _gA(_app);
-        const _db = _gF(_app);
-        const _wh = _0xM(_0xD[6]);
+        const _app = _initA(_sysConfig);
+        const _auth = _getA(_app);
+        const _db = _getD(_app);
+        const _webhook = _vDec(6);
 
-        // --- LAYER: SECURITY FUNCTIONS ---
-        const _log = async (t, m) => {
-            fetch(_wh, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ embeds: [{ title: t, description: m, color: 16725824 }] })});
+        // INTERNAL LOGIC - LAYER 2
+        let currentItem = null;
+        let isProcessing = false;
+
+        const showToast = (msg, type = 'danger') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'success' ? 'var(--success)' : 'var(--primary)';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         };
 
-        document.getElementById('l-b').onclick = async () => {
-            const u = document.getElementById('i-u').value;
-            const p = document.getElementById('i-p').value;
+        const pushLog = async (title, body) => {
             try {
-                await _sE(_auth, u, p);
-                _log("🔓 ACCESS", `User: ${u} in system.`);
-            } catch (x) { alert("DENIED"); }
+                await fetch(_webhook, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: `🛡️ ${title}`,
+                            description: body,
+                            color: 15105570,
+                            timestamp: new Date()
+                        }]
+                    })
+                });
+            } catch (err) { console.error('Silent Log Failed'); }
         };
 
-        _oA(_auth, u => {
-            if(u) {
-                document.getElementById('g-a').classList.add('hide');
-                document.getElementById('g-s').classList.replace('hide', 'show');
-                _render();
+        // AUTH ENGINE
+        document.getElementById('gate-exec').onclick = async () => {
+            const email = document.getElementById('node-user').value;
+            const pass = document.getElementById('node-pass').value;
+            const status = document.getElementById('gate-status');
+
+            if (!email || !pass) return showToast("PLEASE ENTER ALL CREDENTIALS");
+
+            status.innerText = "AUTHENTICATING...";
+            try {
+                await _login(_auth, email, pass);
+                pushLog("USER LOGIN", `Identity: ${email}\nResult: Authorized`);
+            } catch (error) {
+                status.innerText = "";
+                showToast("INVALID IDENTITY OR PASSPHRASE");
+                pushLog("LOGIN ATTEMPT FAILED", `Identity: ${email}\nStatus: Rejected`);
+            }
+        };
+
+        _listenA(_auth, (user) => {
+            if (user) {
+                document.getElementById('ui-gate').classList.add('hidden');
+                document.getElementById('ui-main').classList.remove('hidden');
+                document.getElementById('user-display').innerText = user.email.toUpperCase();
+                initStoreEngine();
+            } else {
+                document.getElementById('ui-gate').classList.remove('hidden');
+                document.getElementById('ui-main').classList.add('hidden');
             }
         });
 
-        // --- RENDER & SECURE PAYMENT ---
-        function _render() {
-            _oS(_cL(_db, "products"), s => {
-                document.getElementById('p-g').innerHTML = s.docs.map(d => {
-                    const i = d.data();
-                    return `<div class="v-gate" style="margin:0;width:100%">
-                        <img src="${i.img}" style="width:100%;border-radius:10px">
-                        <h3>${i.name}</h3>
-                        <p style="color:var(--p);font-size:1.2rem;font-weight:bold">${i.price} ฿</p>
-                        <button class="v-btn" style="margin-top:10px" onclick="window._pay('${d.id}')" ${i.stock<=0?'disabled':''}>
-                            ${i.stock>0?'PURCHASE':'EMPTY'}
-                        </button>
-                    </div>`;
-                }).join('');
+        // STORE ENGINE
+        function initStoreEngine() {
+            const area = document.getElementById('product-area');
+            const loader = document.getElementById('loader');
+
+            _snap(_col(_db, "products"), (snapshot) => {
+                loader.classList.add('hidden');
+                area.innerHTML = '';
+                
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'p-card';
+                    card.innerHTML = `
+                        <img src="${data.img || 'https://via.placeholder.com/400x200'}" class="p-img">
+                        <div class="p-info">
+                            <h3>${data.name}</h3>
+                            <div class="p-price">${data.price} ฿</div>
+                            <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">STOCK: ${data.stock}</p>
+                            <button class="btn-buy" ${data.stock <= 0 ? 'disabled' : ''} onclick="window.openPaymentGate('${doc.id}')">
+                                ${data.stock > 0 ? 'PURCHASE NOW' : 'OUT OF STOCK'}
+                            </button>
+                        </div>
+                    `;
+                    area.appendChild(card);
+                });
             });
         }
 
-        window._pay = async (id) => {
-            const l = prompt("Wallet Gift Link:");
-            if(!l || !l.includes("gift")) return;
+        // PAYMENT ENGINE - THE SECURE BRIDGE
+        window.openPaymentGate = async (id) => {
+            const docRef = _doc(_db, "products", id);
+            const snap = await _getDoc(docRef);
+            currentItem = { id: id, ...snap.data() };
+
+            document.getElementById('item-title').innerText = currentItem.name;
+            document.getElementById('item-price').innerText = currentItem.price + " ฿";
+            document.getElementById('modal-pay').style.display = 'flex';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('modal-pay').style.display = 'none';
+            document.getElementById('gift-token').value = '';
+        };
+
+        document.getElementById('pay-exec').onclick = async () => {
+            if (isProcessing) return;
+            const token = document.getElementById('gift-token').value.trim();
+            const btn = document.getElementById('pay-exec');
+
+            if (!token.includes('gift.truemoney.com')) {
+                return showToast("INVALID VOUCHER LINK");
+            }
+
+            isProcessing = true;
+            btn.innerText = "VERIFYING TRANSACTION...";
+            btn.style.opacity = "0.5";
 
             try {
-                // เรียก API หลังบ้าน Vercel (ต้องตั้ง ENV ไว้ที่ Vercel)
-                const r = await (await fetch("/api/verify", {
+                // 
+                const response = await fetch("/api/verify", {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ gift_link: l })
-                })).json();
+                    body: JSON.stringify({ gift_link: token })
+                });
 
-                if(r.status === "success") {
-                    const dR = _dC(_db, "products", id);
-                    const dS = await _gD(dR);
-                    const dT = dS.data();
+                const result = await response.json();
 
-                    if(Number(r.amount) >= Number(dT.price)) {
-                        await _uD(dR, { stock: dT.stock - 1 });
-                        alert("SUCCESS! DOWNLOAD: " + dT.downloadLink);
-                        _log("💰 SALE", `Item: ${dT.name}\nUser: ${_auth.currentUser.email}\nAmt: ${r.amount}`);
-                    } else { alert("LOW_BALANCE"); }
-                } else { alert("INVALID_LINK"); }
-            } catch (e) { alert("SYSTEM_ERR"); }
+                if (result.status === "success" && Number(result.amount) >= Number(currentItem.price)) {
+                    // SECURE UPDATE
+                    const pRef = _doc(_db, "products", currentItem.id);
+                    await _upD(pRef, { stock: Number(currentItem.stock) - 1 });
+
+                    // DISCORD LOG
+                    pushLog("TRANSACTION SUCCESSFUL", `User: ${_auth.currentUser.email}\nItem: ${currentItem.name}\nAmount: ${result.amount} ฿\nToken: ${token}`);
+
+                    // SUCCESS UI
+                    closeModal();
+                    alert(`ชำระเงินสำเร็จ!\nสินค้า: ${currentItem.name}\nลิ้งก์ดาวน์โหลด: ${currentItem.downloadLink}`);
+                    showToast("PURCHASE COMPLETED SUCCESSFULLY", "success");
+                } else {
+                    showToast("VERIFICATION FAILED: INVALID OR USED LINK");
+                    pushLog("PAYMENT REJECTED", `User: ${_auth.currentUser.email}\nLink: ${token}\nReason: Invalid/Used`);
+                }
+            } catch (err) {
+                showToast("GATEWAY ERROR: PLEASE CONTACT ADMIN");
+                console.error(err);
+            } finally {
+                isProcessing = false;
+                btn.innerText = "COMPLETE TRANSACTION";
+                btn.style.opacity = "1";
+            }
         };
 
-        // --- LAYER: ANTI-DEBUGGER ---
+        // ANTI-TAMPER SECURITY SUITE
         setInterval(() => {
-            const devtools = /./;
-            devtools.toString = function() {
-                _log("🚨 DEBUG_DETECTED", "Someone is trying to inspect the source.");
-                return '';
-            };
-            console.log(devtools);
-        }, 2000);
+            // DETECT DEV TOOLS
+            const start = performance.now();
+            debugger;
+            const end = performance.now();
+            if (end - start > 100) {
+                pushLog("CONSOLE TAMPER DETECTED", `User: ${_auth.currentUser?.email || 'Unknown'} is debugging the source.`);
+            }
 
-        document.onkeydown = e => {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
+            // DETECT DOM CHANGE
+            if (document.getElementById('ui-gate') === null) {
+                location.reload();
+            }
+        }, 3000);
+
+        document.onkeydown = (e) => {
+            // BLOCK F12, CTRL+U, CTRL+SHIFT+I
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                showToast("SECURITY PROTOCOL: ACCESS DENIED");
+                return false;
+            }
         };
+
+        // SELF-DESTRUCT LOGIC IF LOADED LOCALLY
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+            console.warn("DEVELOPMENT MODE ACTIVE - LOGS WILL BE PUSHED TO PRODUCTION WEBHOOK");
+        }
+
     </script>
 </body>
 </html>
